@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "TrainBuddy",
-    "slug": "TrainBuddy",
+    "name": "FitBuddy",
+    "slug": "FitBuddy",
     "platforms": [
       "ios",
       "android",
@@ -11,7 +11,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/fitbuddy.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
