@@ -46,14 +46,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   text: {
-    fontSize: 18
+    fontSize: 18,
   },
   input: {
     backgroundColor: '#fff',
     borderColor: '#000',
     borderWidth: 1,
     padding: 5,
-    width: 200,
+    paddingLeft: 15,
+    width: 250,
     borderRadius: 5
   },
   img: {
@@ -63,9 +64,9 @@ const styles = StyleSheet.create({
   },
   btn: {
     backgroundColor: 'lightblue',
-    width: 200,
+    width: 250,
     height: 50,
-    marginTop: 24,
+    marginTop: 12,
     padding: 20,
     borderWidth: 1,
     borderColor: '#000',

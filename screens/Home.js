@@ -18,7 +18,7 @@ function Home() {
       <View style={styles.header}><Text style={styles.headerTxt}>Events</Text></View>
       <FlatList
           data={events}
-          renderItem={({ item }) => <View style={styles.box}><Text style={styles.text}>{item.event} - {item.created}</Text></View>}
+          renderItem={({ item }) => <View style={styles.box}><View style={styles.date}><Text>{item.date}</Text></View><Text style={styles.text}>{item.event} - {item.created}</Text></View>}
           keyExtractor={item => item.id}
         />
       
@@ -48,17 +48,29 @@ const styles = StyleSheet.create({
     fontSize: 20
   },
   box: {
-    width: Dimensions.get('window').width -50,
+    width: Dimensions.get('window').width -10,
     height: 130,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#cbffe6',
     margin: 5,
     padding: 20,
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 20,
     borderColor: '#000',
     borderWidth: 1
+  },
+  date: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 50,
+    width: 50,
+    borderRadius: 25,
+    backgroundColor: '#fff'
   },
   text: {
     fontSize: 18,

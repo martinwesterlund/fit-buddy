@@ -23,51 +23,61 @@ export default function App() {
     {
       id: '1',
       event: "Football",
+      date: 14,
       created: '-' 
     },
     {
       id: '2',
       event: "Padel",
+      date: 14,
       created: '-' 
     },
     {
       id: '3',
       event: "Jogging",
+      date: 14,
       created: '-' 
     },
     {
       id: '4',
       event: "Walking",
+      date: 14,
       created: '-' 
     },
     {
       id: '5',
       event: "Walking",
+      date: 14,
       created: '-' 
     },
     {
       id: '6',
       event: "Walking",
+      date: 14,
       created: '-' 
     },
     {
       id: '7',
       event: "Walking",
+      date: 14,
       created: '-' 
     },
     {
       id: '8',
       event: "Walking",
+      date: 14,
       created: '-' 
     },
     {
       id: '9',
       event: "Walking",
+      date: 14,
       created: '-' 
     },
     {
       id: '10',
       event: "Walking",
+      date: 14,
       created: '-' 
     },
 

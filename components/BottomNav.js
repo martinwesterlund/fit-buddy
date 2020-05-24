@@ -46,12 +46,14 @@ function BottomNav() {
               iconName = 'ios-contact'
               break
           }
-          return <Ionicons name={iconName} size={size} color={color} />;
+          return <Ionicons name={iconName} size={30} color={color} />;
         },
       })}
+      
       tabBarOptions={{
         activeTintColor: '#010dff',
         inactiveTintColor: '#bebebe',
+        showLabel: false,
         labelStyle: {
           fontSize: 12,
           fontWeight: 'bold'
@@ -65,6 +67,7 @@ function BottomNav() {
           paddingTop: 10
         }
       }
+      
       }
     >
       <Tab.Screen name={loginLogout} component={Login} />
