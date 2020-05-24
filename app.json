@@ -13,7 +13,7 @@
     "splash": {
       "image": "./assets/fitbuddy.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#d9e2ff"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

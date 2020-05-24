@@ -1,13 +1,89 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 import BottomNav from './components/BottomNav'
 
+import Context from './Context/Context'
+
 export default function App() {
+  const [loggedIn, setLoggedIn] = useState(false)
+
+  const [user, setUser] = useState(
+    {
+      name: "Martin",
+      age: 34,
+      sex: 'male',
+      email: 'martin@gmail.com',
+      phone: '0701750412'
+    }
+  )
+
+  const [events, setEvents] = useState([
+    {
+      id: '1',
+      event: "Football",
+      created: '-' 
+    },
+    {
+      id: '2',
+      event: "Padel",
+      created: '-' 
+    },
+    {
+      id: '3',
+      event: "Jogging",
+      created: '-' 
+    },
+    {
+      id: '4',
+      event: "Walking",
+      created: '-' 
+    },
+    {
+      id: '5',
+      event: "Walking",
+      created: '-' 
+    },
+    {
+      id: '6',
+      event: "Walking",
+      created: '-' 
+    },
+    {
+      id: '7',
+      event: "Walking",
+      created: '-' 
+    },
+    {
+      id: '8',
+      event: "Walking",
+      created: '-' 
+    },
+    {
+      id: '9',
+      event: "Walking",
+      created: '-' 
+    },
+    {
+      id: '10',
+      event: "Walking",
+      created: '-' 
+    },
+
+  ])
+
+  console.log()
+
   return (
-    <NavigationContainer>
-      <BottomNav />
-    </NavigationContainer>
+    
+    <Context.Provider value={{ loggedIn, setLoggedIn, user, setUser, events, setEvents }}>
+    <StatusBar backgroundColor='#fff' barStyle='dark-content'/>
+    
+      <NavigationContainer>
+        <BottomNav />
+      </NavigationContainer>
+    </Context.Provider>
   )
 }
 
