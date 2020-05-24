@@ -20,8 +20,9 @@ function Post() {
         onPress={() => {
           setEvents([{
             id: uuid.v4(),
-            event: 'BungeeJump',
-            created: new Date().toString()
+            event: "Gym",
+            date: '13 jun',
+            created: '-' 
           }, ...events])
         }}
         title='Lägg till event'

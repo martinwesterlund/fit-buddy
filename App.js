@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,6 +8,7 @@ import Context from './Context/Context'
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false)
+
 
   const [user, setUser] = useState(
     {
@@ -19,77 +20,26 @@ export default function App() {
     }
   )
 
-  const [events, setEvents] = useState([
-    {
-      id: '1',
-      event: "Football",
-      date: 14,
-      created: '-' 
-    },
-    {
-      id: '2',
-      event: "Padel",
-      date: 14,
-      created: '-' 
-    },
-    {
-      id: '3',
-      event: "Jogging",
-      date: 14,
-      created: '-' 
-    },
-    {
-      id: '4',
-      event: "Walking",
-      date: 14,
-      created: '-' 
-    },
-    {
-      id: '5',
-      event: "Walking",
-      date: 14,
-      created: '-' 
-    },
-    {
-      id: '6',
-      event: "Walking",
-      date: 14,
-      created: '-' 
-    },
-    {
-      id: '7',
-      event: "Walking",
-      date: 14,
-      created: '-' 
-    },
-    {
-      id: '8',
-      event: "Walking",
-      date: 14,
-      created: '-' 
-    },
-    {
-      id: '9',
-      event: "Walking",
-      date: 14,
-      created: '-' 
-    },
-    {
-      id: '10',
-      event: "Walking",
-      date: 14,
-      created: '-' 
-    },
+  const [events, setEvents] = useState(null)
 
-  ])
+  useEffect(() => {
+    console.log('ska hämta')
 
-  console.log()
+    fetch(`http://192.168.0.12:3000/events`)
+            .then(response => response.json())
+            .then(result => {
+              setEvents(result)  
+            })
+            .catch((error) => {
+              console.log(error)
+            })
+  }, [])
 
   return (
-    
+
     <Context.Provider value={{ loggedIn, setLoggedIn, user, setUser, events, setEvents }}>
-    <StatusBar backgroundColor='#fff' barStyle='dark-content'/>
-    
+      <StatusBar hidden={true} backgroundColor='#fff' barStyle='dark-content' />
+
       <NavigationContainer>
         <BottomNav />
       </NavigationContainer>
