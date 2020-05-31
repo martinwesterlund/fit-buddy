@@ -51,17 +51,17 @@ function BottomNav() {
       })}
       
       tabBarOptions={{
-        activeTintColor: '#010dff',
-        inactiveTintColor: '#bebebe',
+        activeTintColor: '#147897',
+        inactiveTintColor: '#fff',
         showLabel: false,
         labelStyle: {
           fontSize: 12,
           fontWeight: 'bold'
         },
         style: {
-          backgroundColor: '#fff',
-          //borderTopColor: '#010dff',
-          borderTopWidth: 1,
+          backgroundColor: '#68bed8',
+          borderTopColor: '#000',
+          borderTopWidth: 0,
           height: 60,
           paddingBottom: 10,
           paddingTop: 10

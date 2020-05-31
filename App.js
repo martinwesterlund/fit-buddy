@@ -12,28 +12,17 @@ export default function App() {
 
   const [user, setUser] = useState(
     {
-      name: "Martin",
-      age: 34,
-      sex: 'male',
-      email: 'martin@gmail.com',
-      phone: '0701750412'
+      name: "Kennet",
+      age: 30,
+      sex: 'Man',
+      email: 'kennet@gmail.com',
+      phone: '0701234567'
     }
   )
 
   const [events, setEvents] = useState(null)
 
-  useEffect(() => {
-    console.log('ska hämta')
-
-    fetch(`http://192.168.0.12:3000/events`)
-            .then(response => response.json())
-            .then(result => {
-              setEvents(result)  
-            })
-            .catch((error) => {
-              console.log(error)
-            })
-  }, [])
+  
 
   return (
 

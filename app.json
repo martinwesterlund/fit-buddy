@@ -23,9 +23,6 @@
     ],
     "ios": {
       "supportsTablet": true
-    },
-    "androidNavigationBar": {    
-      "visible": "sticky-immersive"
     }
   }
 }
