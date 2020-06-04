@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import RNPickerSelect from 'react-native-picker-select'
 import { FontAwesome } from '@expo/vector-icons'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import DateTimePicker from '@react-native-community/datetimepicker'
 
 function Post() {
   const { loggedIn, setLoggedIn, user, setUser, events, setEvents } = useContext(Context)
@@ -16,6 +17,36 @@ function Post() {
     console.log('Eventlistan uppdaterad')
 
   }, [events])
+
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState('date');
+  const [show, setShow] = useState(false);
+  const [dateString, setDateString] = useState()
+  const [timeString, setTimeString] = useState()
+  const months = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === 'ios');
+    setDate(currentDate);
+    console.log(currentDate.getMinutes().toString().length)
+    setDateString(`${currentDate.getDate()} ${months[currentDate.getMonth()]}, ${currentDate.getFullYear()}`)
+    setTimeString(`${currentDate.getHours()}:${currentDate.getMinutes().toString().length > 1 ? currentDate.getMinutes() : '0' + currentDate.getMinutes() }`)
+  };
+
+  const showMode = currentMode => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
+  const showDatepicker = () => {
+    showMode('date');
+    
+  };
+
+  const showTimepicker = () => {
+    showMode('time');
+  };
 
   return (
     <KeyboardAvoidingView
@@ -32,20 +63,32 @@ function Post() {
           <View style={styles.postForm}>
 
             <View style={styles.dateTime}>
-              <View style={styles.calendarContainer}>
-                <FontAwesome name='calendar' size={30} color='#000' onPress={() => {
-                  console.log('datum')
-                }} />
+              <View style={styles.calendarContainer} >
+                <FontAwesome name='calendar' size={30} color='#000' onPress={showDatepicker} />
               </View>
-              <View style={styles.calendarContainer}>
-                <Ionicons name="md-time" size={30} color="#000" />
+              <View style={styles.calendarContainer} >
+                <Ionicons name="md-time" size={30} color="#000" onPress={showTimepicker}/>
               </View>
-              </View>
-              <View style={styles.dateTime}>
-                <View style={styles.timeDisplay}><Text>ÅÅÅÅ-MM-DD</Text></View>
-                <View style={styles.timeDisplay}><Text>18.00</Text></View>
-              </View>
-            
+            </View>
+            {show && (
+              <DateTimePicker
+                minuteInterval={5}
+                testID="dateTimePicker"
+                timeZoneOffsetInMinutes={0}
+                value={date}
+                mode={mode}
+                textColor="yellow"
+                is24Hour={true}
+                display='default'
+                onChange={onChange}
+                minimumDate={new Date(Date.now())}
+              />
+            )}
+            <View style={styles.dateTime}>
+              <View style={styles.timeDisplay}><Text>{dateString}</Text></View>
+              <View style={styles.timeDisplay}><Text>{timeString}</Text></View>
+            </View>
+
             <Text style={styles.text}>Aktivitet</Text>
             <RNPickerSelect
               useNativeAndroidPickerStyle={false}

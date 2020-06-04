@@ -130,22 +130,6 @@ function Home() {
       "longitude": 11.9832381606102,
       "latitude": 57.72938000381312
       },
-      {
-      "id": null,
-      "event": "Hej",
-      "date": "11 mar",
-      "created": "",
-      "duration": "12 min",
-      "description": "",
-      "location": "Malml",
-      "time": "12.20",
-      "attendees": "",
-      "limit": 3,
-      "hostId": "",
-      "hostName": "Ken",
-      "longitude": 11.958263777196406,
-      "latitude": 57.674858457831206
-      }
       ])
     // fetch(`http://192.168.0.12:3000/events`)
     // .then(response => response.json())
@@ -156,7 +140,7 @@ function Home() {
     //   console.log(error)
     // })
   }
-  const months= ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December']
+  const months= ['januari', 'februari', 'mars', 'april', 'maj', 'juni', 'juli', 'augusti', 'september', 'oktober', 'november', 'december']
   const date = new Date()
   const today = `${date.getDate().toString()} ${months[date.getMonth()]}`
   useEffect(() => {

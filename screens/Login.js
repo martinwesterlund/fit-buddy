@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Image, Button, TouchableOpacity, Modal, TouchableHighlight, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Image, Button, TouchableOpacity, Modal, TouchableHighlight, Dimensions, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Background from '../components/Background'
 import Context from '../Context/Context'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -18,7 +18,13 @@ function Login() {
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior='padding'
+      style={styles.container}
+      keyboardVerticalOffset={0}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <View style={styles.screen}>
       <Background />
       <Modal
         animationType="slide"
@@ -102,15 +108,22 @@ function Login() {
       </View>)}
 
     </View>
+    </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#fff',
+  },
+  screen: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    // marginTop: Constants.statusBarHeight
   },
   closeBtn: {
     position: 'absolute',
