@@ -5,6 +5,7 @@ import Home from '../screens/Home'
 import Post from '../screens/Post'
 import Profile from '../screens/Profile'
 import Login from '../screens/Login'
+import Input from '../screens/Inputtest'
 
 import Ionicons from '@expo/vector-icons/Ionicons'
 
@@ -74,6 +75,7 @@ function BottomNav() {
       <Tab.Screen name="Events" component={Home} />
       <Tab.Screen name="Post" component={Post} />
       <Tab.Screen name="Profile" component={Profile} />
+
 
     </Tab.Navigator>
   );

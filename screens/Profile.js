@@ -4,13 +4,13 @@ import Context from '../Context/Context'
 import Background from '../components/Background'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { MaterialIcons } from '@expo/vector-icons';
+import { useObserver } from 'mobx-react-lite'
 
 function Profile() {
-  const { loggedIn, setLoggedIn, user, setUser, events, setEvents } = useContext(Context)
+  // const { loggedIn, setLoggedIn, user, setUser, events, setEvents } = useContext(Context)
+  const store = useContext(Context)
 
-
-
-  return (
+  return useObserver(() => (
     <View style={styles.container}>
       <Background />
       <View style={styles.header}>
@@ -20,20 +20,23 @@ function Profile() {
       </View>
       </View>
       
+      {store.loggedIn ? 
       <View style={styles.profileBox}>
         <Image source={{ uri: `https://randomuser.me/api/portraits/men/1.jpg` }} style={styles.img} />
-        <Text style={styles.nameText}>{user.name}, {user.age}</Text>
+        <Text style={styles.nameText}>{store.user.firstname}, {new Date().getFullYear() - store.user.birthyear}</Text>
 
-        <Text style={styles.text}>{user.sex}</Text>
+        <Text style={styles.text}>{store.user.gender}</Text>
+        <Text style={styles.text}>{store.user.city}</Text>
         <View style={styles.infoBox}>
           <Ionicons name='ios-mail' size={30} />
-          <Text style={styles.text}>{user.email}</Text>
+          <Text style={styles.text}>{store.user.email}</Text>
         </View>
         <View style={styles.infoBox}>
           <Ionicons name='ios-phone-portrait' size={30} />
-          <Text style={styles.text}>{user.phone}</Text>
+          <Text style={styles.text}>{store.user.phone}</Text>
         </View>
       </View>
+      : <Text>Inte inloggad</Text>}
 
 
       {/* <Button
@@ -51,7 +54,7 @@ function Profile() {
       <Text>{events[0].event}</Text> */}
 
     </View>
-  );
+  ));
 }
 
 const styles = StyleSheet.create({

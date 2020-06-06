@@ -1,116 +1,157 @@
 import React, { useContext, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Image, Button, TouchableOpacity, Modal, TouchableHighlight, Dimensions, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Background from '../components/Background'
+import Localhost from '../components/Localhost'
 import Context from '../Context/Context'
+import { useObserver } from 'mobx-react-lite'
 import Ionicons from '@expo/vector-icons/Ionicons'
 
-function Login() {
 
+function Login() {
+  const store = useContext(Context)
   const { loggedIn, setLoggedIn, user, setUser, events, setEvents } = useContext(Context)
   const [modalVisible, setModalVisible] = useState(false);
   const [newUser, setNewUser] = useState()
+
+
   const login = () => {
-    setLoggedIn(true)
+    fetch(`${Localhost}:3000/login`, {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: store.inloggedUser.name,
+        password: store.inloggedUser.password
+      })
+    }).then(result => {
+      if (result.status === 200) {
+        console.log('Inloggning lyckades')
+        getUserData()
+
+      }
+      else if (result.status === 401) {
+        console.log('Felaktigt användarnamn och lösenord')
+      }
+      else {
+        console.log('Något gick fel')
+      }
+    })
+  }
+
+  const getUserData = () => {
+    fetch(`${Localhost}:3000/users/${store.inloggedUser.name}`)
+      .then(response => response.json())
+      .then(result => {
+        console.log(result)
+        store.setUserData(result[0])
+        store.setAsLoggedIn()
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   }
 
   const logout = () => {
     setLoggedIn(false)
   }
 
-  return (
+  return useObserver(() => (
     <KeyboardAvoidingView
       behavior='padding'
       style={styles.container}
       keyboardVerticalOffset={0}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-    <View style={styles.screen}>
-      <Background />
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          console.log('Modal closing');
-        }}>
+        <View style={styles.screen}>
+          <Background />
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              console.log('Modal closing');
+            }}>
 
-        <View style={styles.modalContainer}>
+            <View style={styles.modalContainer}>
 
-          <View style={styles.modal}>
-            <TouchableOpacity style={styles.closeBtn} onPress={() => {
-              setModalVisible(!modalVisible);
-            }}><Ionicons name="md-close" size={24} color="black" /></TouchableOpacity>
-
-            <View>
-              <Text style={styles.headerText}>Registrera nytt konto</Text>
-              <Text style={styles.text}>Användarnamn</Text>
-              <TextInput
-                style={styles.input}
-
-              />
-              <Text style={styles.text}>Lösenord</Text>
-              <TextInput
-                secureTextEntry={true}
-                style={styles.input}
-              />
-              <Text style={styles.text}>Förnamn</Text>
-              <TextInput
-                style={styles.input}
-              />
-              <Text style={styles.text}>Efternamn</Text>
-              <TextInput
-                style={styles.input}
-              />
-              <Text style={styles.text}>Födelseår</Text>
-              <TextInput
-                keyboardType={'number-pad'}
-                style={styles.input}
-              />
-              <Text style={styles.text}>Telefon</Text>
-              <TextInput
-                style={styles.input}
-              />
-              <Text style={styles.text}>Email</Text>
-              <TextInput
-                style={styles.input}
-              />
-              <TouchableHighlight
-                style={styles.regBtn}
-                onPress={() => {
+              <View style={styles.modal}>
+                <TouchableOpacity style={styles.closeBtn} onPress={() => {
                   setModalVisible(!modalVisible);
-                }}>
-                <Text style={styles.text}>Registrera</Text>
-              </TouchableHighlight>
-            </View>
-          </View>
-        </View>
-      </Modal>
-      <Image source={require('./fitbuddy.png')} style={styles.img} />
-      {!loggedIn && (<View style={styles.form}>
-        <Text style={styles.text}>Användarnamn</Text>
-        <TextInput placeholder='exampel@exempel.com' style={styles.input}></TextInput>
-        <Text style={styles.text}>Lösenord</Text>
-        <TextInput placeholder='lösenord' secureTextEntry={true} style={styles.input}></TextInput>
-        <TouchableOpacity style={styles.btn} onPress={login}>
-          <Text style={styles.text}>Logga in</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.register}>
-          <Text style={styles.registerText} onPress={() => {
-            setModalVisible(true);
-          }}>Ny användare? Registrera konto här!</Text>
-        </TouchableOpacity>
-      </View>)}
-      {loggedIn && (<View style={styles.form}>
-        <Text style={styles.textCenter}>Inloggad som USER</Text>
-        <TouchableOpacity style={styles.btn} onPress={logout}>
-          <Text style={styles.text}>Logga ut</Text>
-        </TouchableOpacity>
-      </View>)}
+                }}><Ionicons name="md-close" size={24} color="black" /></TouchableOpacity>
 
-    </View>
-    </TouchableWithoutFeedback>
+                <View>
+                  <Text style={styles.headerText}>Registrera nytt konto</Text>
+                  <Text style={styles.text}>Användarnamn</Text>
+                  <TextInput
+                    style={styles.input}
+
+                  />
+                  <Text style={styles.text}>Lösenord</Text>
+                  <TextInput
+                    secureTextEntry={true}
+                    style={styles.input}
+                  />
+                  <Text style={styles.text}>Förnamn</Text>
+                  <TextInput
+                    style={styles.input}
+                  />
+                  <Text style={styles.text}>Efternamn</Text>
+                  <TextInput
+                    style={styles.input}
+                  />
+                  <Text style={styles.text}>Födelseår</Text>
+                  <TextInput
+                    keyboardType={'number-pad'}
+                    style={styles.input}
+                  />
+                  <Text style={styles.text}>Telefon</Text>
+                  <TextInput
+                    style={styles.input}
+                  />
+                  <Text style={styles.text}>Email</Text>
+                  <TextInput
+                    style={styles.input}
+                  />
+                  <TouchableOpacity
+                    style={styles.regBtn}
+                    onPress={() => {
+                      setModalVisible(!modalVisible);
+                    }}>
+                    <Text style={styles.btnText}>Registrera</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+          <Image source={require('./fitbuddy.png')} style={styles.img} />
+          {!loggedIn && (<View style={styles.form}>
+            <Text style={styles.text}>Användarnamn</Text>
+            <TextInput onChangeText={value => store.setInloggedUser(value)} value={store.inloggedUser.name} placeholder='exampel@exempel.com' style={styles.input}></TextInput>
+            <Text style={styles.text}>Lösenord</Text>
+            <TextInput onChangeText={value => store.setInloggedUserPW(value)} value={store.inloggedUser.password} placeholder='lösenord' secureTextEntry={true} style={styles.input}></TextInput>
+            <TouchableOpacity style={styles.btn} onPress={login}>
+              <Text style={styles.btnText}>Logga in</Text>
+            </TouchableOpacity>
+            <Text>Namn: {store.inloggedUser.name}</Text>
+            <Text>PW: {store.inloggedUser.password}</Text>
+            <TouchableOpacity style={styles.register}>
+              <Text style={styles.registerText} onPress={() => {
+                setModalVisible(true);
+              }}>Ny användare? Registrera konto här!</Text>
+            </TouchableOpacity>
+          </View>)}
+          {store.loggedIn && (<View style={styles.form}>
+            <Text style={styles.textCenter}>Inloggad som {store.inloggedUser.name}</Text>
+            <TouchableOpacity style={styles.btn} onPress={logout}>
+              <Text style={styles.text}>Logga ut</Text>
+            </TouchableOpacity>
+          </View>)}
+
+        </View>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
-  );
+  ));
 }
 
 const styles = StyleSheet.create({
@@ -139,6 +180,10 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
+  },
+  btnText: {
+    fontSize: 16,
+    color: '#fff'
   },
   textCenter: {
     fontSize: 16,
@@ -169,7 +214,7 @@ const styles = StyleSheet.create({
     marginBottom: 50
   },
   regBtn: {
-    backgroundColor: 'lightblue',
+    backgroundColor: '#68bed8',
     width: 250,
     height: 50,
     marginTop: 30,
@@ -181,7 +226,7 @@ const styles = StyleSheet.create({
     borderRadius: 5
   },
   btn: {
-    backgroundColor: 'lightblue',
+    backgroundColor: '#68bed8',
     width: 250,
     height: 50,
     marginTop: 12,
@@ -205,6 +250,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#00000095'
 
   },
   modal: {
@@ -212,8 +258,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: Dimensions.get('window').height - 50,
     width: Dimensions.get('window').width - 50,
-    borderWidth: 0,
-    backgroundColor: '#68bed8',
+    borderWidth: 1,
+    borderColor: '#fff',
+    backgroundColor: '#abd9e7',
     marginBottom: 30,
     borderRadius: 15
   }

@@ -3,37 +3,38 @@ import { StyleSheet, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import BottomNav from './components/BottomNav'
-
+import { useObserver } from 'mobx-react-lite'
 import Context from './Context/Context'
+import store from './store/store'
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false)
 
 
-  const [user, setUser] = useState(
-    {
-      name: "Kennet",
-      age: 30,
-      sex: 'Man',
-      email: 'kennet@gmail.com',
-      phone: '0701234567'
-    }
-  )
+  // const [user, setUser] = useState(
+  //   {
+  //     name: "Kennet",
+  //     age: 30,
+  //     sex: 'Man',
+  //     email: 'kennet@gmail.com',
+  //     phone: '0701234567'
+  //   }
+  // )
 
   const [events, setEvents] = useState(null)
 
-  
 
-  return (
 
-    <Context.Provider value={{ loggedIn, setLoggedIn, user, setUser, events, setEvents }}>
+  return useObserver(() => (
+
+    <Context.Provider value={store}>
       <StatusBar hidden={true} backgroundColor='#fff' barStyle='dark-content' />
 
       <NavigationContainer>
         <BottomNav />
       </NavigationContainer>
     </Context.Provider>
-  )
+  ))
 }
 
 const styles = StyleSheet.create({
