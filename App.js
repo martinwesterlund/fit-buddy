@@ -8,23 +8,7 @@ import Context from './Context/Context'
 import store from './store/store'
 
 export default function App() {
-  const [loggedIn, setLoggedIn] = useState(false)
-
-
-  // const [user, setUser] = useState(
-  //   {
-  //     name: "Kennet",
-  //     age: 30,
-  //     sex: 'Man',
-  //     email: 'kennet@gmail.com',
-  //     phone: '0701234567'
-  //   }
-  // )
-
-  const [events, setEvents] = useState(null)
-
-
-
+  
   return useObserver(() => (
 
     <Context.Provider value={store}>

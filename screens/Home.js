@@ -11,6 +11,7 @@ import { useObserver } from 'mobx-react-lite'
 import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps'
 import Localhost from '../components/Localhost';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 
@@ -19,7 +20,8 @@ function Home() {
   const store = useContext(Context)
 
   const [location, setLocation] = useState()
-  const [modalVisible, setModalVisible] = useState(false);
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [eventModalVisible, setEventModalVisible] = useState(false)
 
   useEffect(() => {
     getLocationAsync()
@@ -37,7 +39,7 @@ function Home() {
     })();
 
   };
-  
+
   // const { loggedIn, setLoggedIn, user, setUser, events, setEvents } = useContext(Context)
 
   // const getEvents = () => {
@@ -60,7 +62,10 @@ function Home() {
   //   getEvents()
   // }, [])
   const [mapVisible, setMapVisible] = useState(false)
-
+  const showEvent = id => {
+    store.setMarkedEvent(id)
+    setEventModalVisible(true)
+  }
 
   const refData = () => {
     console.log('listan uppdaterad')
@@ -84,13 +89,13 @@ function Home() {
 
 
   const showMap = () => {
-    console.log('visa kartvy')
     setMapVisible(!mapVisible)
   }
 
 
   return useObserver(() => (
     <>
+      {/* Header  */}
       <View style={styles.header}>
         <Text style={styles.todaysDate}>{today}</Text>
         <Text style={styles.headerTxt}>Aktiviteter</Text>
@@ -99,31 +104,34 @@ function Home() {
             : <Ionicons onPress={showMap} name="ios-list" size={30} color="#fff" />}
         </View>
         <View style={styles.headerSlide}><FontAwesome onPress={() => {
-          setModalVisible(true)
+          setFilterModalVisible(true)
         }} name='sliders' size={24} color='#fff' /></View>
       </View>
 
       <View style={styles.screen}>
         <Background />
 
+        {/* Visa lista med events */}
         {!mapVisible ?
           <FlatList
             data={store.filteredEvents}
             renderItem={({ item }) =>
-              <View style={styles.box}>
-                <View style={styles.date}>
-                  <Text style={styles.dateText}>{item.date}</Text>
-                </View>
-                <Text style={styles.eventTime}>{item.time}</Text>
-                <Text style={styles.eventText}>{item.event}, {item.duration}</Text>
-                <Text style={styles.text}>{item.location}</Text>
-                <Text style={styles.text}>Skapad av: {item.hostName}</Text>
-                <Text style={styles.text}>Bokade platser: 0/{item.limit}</Text>
-                <View style={styles.arrow}>
-                  <Ionicons name="ios-arrow-dropright" size={30} color="#68bed8" />
-                </View>
+              <TouchableOpacity onPress={() => { showEvent(item.id) }}>
+                <View style={styles.box}>
+                  <View style={styles.date}>
+                    <Text style={styles.dateText}>{item.date}</Text>
+                  </View>
+                  <Text style={styles.eventTime}>{item.time}</Text>
+                  <Text style={styles.eventText}>{item.event}, {item.duration}</Text>
+                  <Text style={styles.text}>{item.location}</Text>
+                  <Text style={styles.text}>Skapad av: {item.hostName}</Text>
+                  <Text style={styles.text}>Bokade platser: {(JSON.parse(item.attendees)).length > 0 ? (JSON.parse(item.attendees)).length : 0}/{item.limit}</Text>
+                  <View style={styles.arrow}>
+                    <Ionicons name="ios-arrow-dropright" size={30} color="#68bed8" />
+                  </View>
 
-              </View>}
+                </View>
+              </TouchableOpacity>}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -131,6 +139,8 @@ function Home() {
               />}
             keyExtractor={item => item.id}
           />
+
+          // Eller kartan med events
           : <View>
             {location ?
               <View style={styles.mapContainer}>
@@ -152,7 +162,7 @@ function Home() {
                         coordinate={{ latitude: event.latitude, longitude: event.longitude }}
                         title={`${event.event}, ${event.duration} `}
                         description={`${event.date}, kl. ${event.time}`}
-                        key={event.id}
+                        key={event.id} onPress={() => { store.setMarkedEvent(event.id) }}
                       />
                     )))
                   }
@@ -160,13 +170,70 @@ function Home() {
               </View>
               : <View style={styles.mapStyle}><Text>Hämtar karta...</Text></View>}
 
+            {/* Visar valt event  */}
+            {store.markedEvent ?
+              <TouchableOpacity onPress={() => setEventModalVisible(true)}>
+                <View style={styles.box2}>
+                  <View style={styles.date}>
+                    <Text style={styles.dateText}>{store.markedEvent.date}</Text>
+                  </View>
+                  <Text style={styles.eventTime}>{store.markedEvent.time}</Text>
+                  <Text style={styles.eventText}>{store.markedEvent.event}, {store.markedEvent.duration}</Text>
+                  <Text style={styles.text}>{store.markedEvent.location}</Text>
+                  <Text style={styles.text}>Skapad av: {store.markedEvent.hostName}</Text>
+                  <Text style={styles.text}>Bokade platser: {(JSON.parse(store.markedEvent.attendees)).length > 0 ? (JSON.parse(store.markedEvent.attendees)).length : 0}/{store.markedEvent.limit}</Text>
+                  <View style={styles.arrow}>
+                    <Ionicons name="ios-arrow-dropright" size={30} color="#68bed8" />
+                  </View>
+
+                </View>
+              </TouchableOpacity>
+              : <View></View>}
           </View>}
 
       </View>
+      {/* Modal med mer info om eventet  */}
       <Modal
         animationType="fade"
         transparent={true}
-        visible={modalVisible}
+        visible={eventModalVisible}
+        onRequestClose={() => {
+          console.log('Modal closing');
+        }}>
+
+        <View style={styles.modalContainer}>
+
+          <View style={styles.modal}>
+
+            <TouchableOpacity style={styles.closeBtn} onPress={() => {
+              setEventModalVisible(!eventModalVisible);
+            }}>
+              <FontAwesome name='close' size={24} color='#fff' /></TouchableOpacity>
+            {store.markedEvent && (
+              <>
+              <ScrollView style={styles.infoBox}>
+                <View style={styles.infoBoxContent}>
+                  <Text style={styles.eventText}>{store.markedEvent.event} med {store.markedEvent.hostName} - {store.markedEvent.duration}</Text>
+                  <Text>{store.markedEvent.date}, kl. {store.markedEvent.time}</Text>
+
+                  <Text>{store.markedEvent.location}</Text>
+                  <Text style={styles.description}>"{store.markedEvent.description}"</Text>
+
+                  </View>
+              </ScrollView>
+              <Text style={styles.eventText}>Bokade platser {(JSON.parse(store.markedEvent.attendees)).length > 0 ? (JSON.parse(store.markedEvent.attendees)).length : 0}/{store.markedEvent.limit}</Text>
+                
+              <TouchableOpacity style={styles.regBtn}><Text style={styles.btnText}>Boka dig!</Text></TouchableOpacity>
+              </>)}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Filtrering modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={filterModalVisible}
         onRequestClose={() => {
           console.log('Modal closing');
         }}>
@@ -175,8 +242,8 @@ function Home() {
 
           <View style={styles.modal}>
             <TouchableOpacity style={styles.closeBtn} onPress={() => {
-              setModalVisible(!modalVisible);
-            }}><Ionicons name="md-close" size={24} color="black" /></TouchableOpacity>
+              setFilterModalVisible(!filterModalVisible);
+            }}><FontAwesome name='close' size={24} color='#fff' /></TouchableOpacity>
 
             <View>
               <Text style={styles.headerText}>Filtrering</Text>
@@ -207,7 +274,7 @@ function Home() {
 
               <View style={styles.checkboxesContainer}>
                 <FlatList
-                numColumns={2}
+                  numColumns={2}
                   data={store.eventTypes}
                   renderItem={({ item }) =>
                     <View style={styles.optionContainer}>
@@ -226,7 +293,7 @@ function Home() {
               <TouchableOpacity
                 style={styles.regBtn}
                 onPress={() => {
-                  setModalVisible(!modalVisible);
+                  setFilterModalVisible(!filterModalVisible);
                 }}>
 
                 <Text style={styles.btnText}>Filtrera</Text>
@@ -242,8 +309,9 @@ function Home() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    alignItems: 'center',
-    // justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: 'stretch',
+    justifyContent: 'center',
     backgroundColor: '#fff',
     // marginTop: Constants.statusBarHeight
   },
@@ -296,6 +364,19 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     borderWidth: 0
   },
+  box2: {
+    width: Dimensions.get('window').width - 50,
+    height: 130,
+    alignItems: 'center',
+    // justifyContent: 'center',
+    backgroundColor: '#fff',
+    marginTop: 10,
+    padding: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    borderColor: '#000',
+    borderWidth: 0
+  },
   date: {
     position: 'absolute',
     top: 10,
@@ -323,11 +404,7 @@ const styles = StyleSheet.create({
     top: 80,
     fontSize: 18,
     fontWeight: 'bold',
-    //borderWidth: 1,
-
     width: 50
-
-
   },
   arrow: {
     position: 'absolute',
@@ -338,6 +415,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginTop: 20,
     marginBottom: 20,
+    width: Dimensions.get('window').width - 48,
   },
   mapStyle: {
     width: Dimensions.get('window').width - 50,
@@ -352,18 +430,15 @@ const styles = StyleSheet.create({
   modal: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: Dimensions.get('window').height - 300,
+    height: Dimensions.get('window').height - 200,
     width: Dimensions.get('window').width - 50,
-    borderWidth: 1,
-    borderColor: '#fff',
     backgroundColor: '#abd9e7',
-    marginBottom: 30,
     borderRadius: 15
   },
   closeBtn: {
     position: 'absolute',
-    right: 10,
-    top: 10,
+    right: 0,
+    top: 0,
     padding: 25
   },
   regBtn: {
@@ -371,6 +446,7 @@ const styles = StyleSheet.create({
     width: 250,
     height: 50,
     marginTop: 30,
+    marginBottom: 30,
     padding: 20,
     borderWidth: 0,
     borderColor: '#000',
@@ -408,6 +484,21 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center'
+  },
+  infoBox: {
+    padding: 20,
+    margin: 50,
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10
+  },
+  infoBoxContent: {
+    paddingBottom: 50
+  },
+  description: {
+    fontStyle: 'italic',
+    paddingTop: 10,
+    paddingBottom: 20
   }
 });
 export default Home

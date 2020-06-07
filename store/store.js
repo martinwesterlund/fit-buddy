@@ -12,6 +12,10 @@ const store = observable({
         // return store.events.filter(event => event.location === 'Stockholm' && event.event === 'Badminton')
     },
 
+    // get markedEvent(){
+    //     return store.events.filter(event => event.id == store.markedEventId)
+    // },
+
     // Action - ändra värde i store (mutation)
     increment() {
         store.value++
@@ -25,12 +29,20 @@ const store = observable({
         store.inloggedUser.password = value
     },
 
+    setMarkedEvent(id){
+        store.markedEvent = store.events.filter(event => event.id == id)[0]
+    },
+
     setUserData(user){
         store.user = user
     },
 
     setAsLoggedIn(){
         store.loggedIn = true
+    },
+
+    setAsLoggedOut(){
+        store.loggedIn = false
     },
 
     // State 
@@ -40,6 +52,8 @@ const store = observable({
         password: null
     },
     loggedIn: false,
+    markedEventId: null,
+    markedEvent: null,
     user: null,
     eventTypes: [
         'Walking', 'Running', 'Padel', 'Football', 'Swimming', 'Discgolf', 'Tennis', 'Other'
@@ -51,11 +65,11 @@ const store = observable({
             "date": "7 jun",
             "created": "-",
             "duration": "60 min",
-            "description": null,
+            "description": 'Tänkte mig en go Padel-match med någon som är van Padelspelare. ',
             "location": "Göteborg",
             "time": "12.30",
-            "attendees": "",
-            "limit": 1,
+            "attendees": '[{"id": "5", "name": "Barbro"}, {"id": "2", "name": "Nisse"}, {"id": "3", "name": "Josef"}]',
+            "limit": 3,
             "hostId": null,
             "hostName": "Kalle",
             "longitude": 11.968996301293377,
@@ -67,10 +81,10 @@ const store = observable({
             "date": "8 jun",
             "created": "-",
             "duration": "45 min",
-            "description": null,
+            "description": 'Intervallöpning är det som gäller. Rusa 30 sek, vila 10. Så håller det på. Intervallöpning är det som gäller. Rusa 30 sek, vila 10. Så håller det på. Intervallöpning är det som gäller. Rusa 30 sek, vila 10. Så håller det på. Intervallöpning är det som gäller. Rusa 30 sek, vila 10. Så håller det på. Intervallöpning är det som gäller. Rusa 30 sek, vila 10. Så håller det på. Intervallöpning är det som gäller. Rusa 30 sek, vila 10. Så håller det på. Intervallöpning är det som gäller. Rusa 30 sek, vila 10. Så håller det på.  ',
             "location": "Göteborg",
             "time": "18.00",
-            "attendees": null,
+            "attendees": "{}",
             "limit": 5,
             "hostId": null,
             "hostName": "Pelle",
@@ -83,10 +97,10 @@ const store = observable({
             "date": "10 jun",
             "created": "-",
             "duration": "60 min",
-            "description": null,
+            "description": 'Powerwalk med mig och min hund.',
             "location": "Stockholm",
             "time": "16.30",
-            "attendees": null,
+            "attendees": "{}",
             "limit": 2,
             "hostId": null,
             "hostName": "Anna\t",
@@ -99,10 +113,10 @@ const store = observable({
             "date": "11 jun",
             "created": "-",
             "duration": "120 min",
-            "description": null,
+            "description": 'Vi kör på 10-meters väggen utan lina.',
             "location": "Malmö",
             "time": "09.45",
-            "attendees": null,
+            "attendees": "{}",
             "limit": 1,
             "hostId": null,
             "hostName": "Klara",
@@ -115,10 +129,10 @@ const store = observable({
             "date": "13 jun",
             "created": "-",
             "duration": "90 min",
-            "description": null,
+            "description": 'Vill ha någon att träna med inför Göteborgsvarvet.',
             "location": "Göteborg",
             "time": "19.00",
-            "attendees": null,
+            "attendees": "{}",
             "limit": 2,
             "hostId": null,
             "hostName": "Johan",
@@ -131,10 +145,10 @@ const store = observable({
             "date": "16 jun",
             "created": "-",
             "duration": "90 min",
-            "description": null,
+            "description": 'Fotbollsmatch, korpnivå typ. Vi behöver några spelare till.',
             "location": "Malmö",
             "time": "20.00",
-            "attendees": null,
+            "attendees": '[{"id": "5", "name": "Barbro"}, {"id": "2", "name": "Nisse"}]',
             "limit": 6,
             "hostId": null,
             "hostName": "Nisse",
@@ -147,10 +161,10 @@ const store = observable({
             "date": "20 jun",
             "created": "-",
             "duration": "60 min",
-            "description": null,
+            "description": 'Medelduktig motspelare sökes',
             "location": "Stockholm",
             "time": "18.15",
-            "attendees": null,
+            "attendees": "{}",
             "limit": 1,
             "hostId": null,
             "hostName": "Barbro",

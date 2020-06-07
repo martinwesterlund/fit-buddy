@@ -5,6 +5,7 @@ import Localhost from '../components/Localhost'
 import Context from '../Context/Context'
 import { useObserver } from 'mobx-react-lite'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import { FontAwesome } from '@expo/vector-icons'
 
 
 function Login() {
@@ -53,7 +54,10 @@ function Login() {
   }
 
   const logout = () => {
-    setLoggedIn(false)
+    store.setAsLoggedOut()
+    store.setInloggedUser(null)
+    store.setInloggedUserPW(null)
+    store.setUserData(null)
   }
 
   return useObserver(() => (
@@ -78,7 +82,7 @@ function Login() {
               <View style={styles.modal}>
                 <TouchableOpacity style={styles.closeBtn} onPress={() => {
                   setModalVisible(!modalVisible);
-                }}><Ionicons name="md-close" size={24} color="black" /></TouchableOpacity>
+                }}><FontAwesome name='close' size={24} color='#fff' /></TouchableOpacity>
 
                 <View>
                   <Text style={styles.headerText}>Registrera nytt konto</Text>
@@ -125,7 +129,7 @@ function Login() {
             </View>
           </Modal>
           <Image source={require('./fitbuddy.png')} style={styles.img} />
-          {!loggedIn && (<View style={styles.form}>
+          {!store.loggedIn ? <View style={styles.form}>
             <Text style={styles.text}>Användarnamn</Text>
             <TextInput onChangeText={value => store.setInloggedUser(value)} value={store.inloggedUser.name} placeholder='exampel@exempel.com' style={styles.input}></TextInput>
             <Text style={styles.text}>Lösenord</Text>
@@ -140,13 +144,13 @@ function Login() {
                 setModalVisible(true);
               }}>Ny användare? Registrera konto här!</Text>
             </TouchableOpacity>
-          </View>)}
-          {store.loggedIn && (<View style={styles.form}>
+          </View>
+          : <View style={styles.form}>
             <Text style={styles.textCenter}>Inloggad som {store.inloggedUser.name}</Text>
             <TouchableOpacity style={styles.btn} onPress={logout}>
               <Text style={styles.text}>Logga ut</Text>
             </TouchableOpacity>
-          </View>)}
+          </View>}
 
         </View>
       </TouchableWithoutFeedback>
@@ -168,8 +172,8 @@ const styles = StyleSheet.create({
   },
   closeBtn: {
     position: 'absolute',
-    right: 10,
-    top: 10,
+    right: 0,
+    top: 0,
     padding: 25
   },
   headerText: {
@@ -258,10 +262,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: Dimensions.get('window').height - 50,
     width: Dimensions.get('window').width - 50,
-    borderWidth: 1,
-    borderColor: '#fff',
     backgroundColor: '#abd9e7',
-    marginBottom: 30,
+    // marginBottom: 30,
     borderRadius: 15
   }
 });

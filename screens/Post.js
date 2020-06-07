@@ -83,6 +83,9 @@ function Post() {
                         <View style={styles.content}>
                             {location ?
                                 <View style={styles.mapContainer}>
+                                    {!newMarker.longitude &&
+                                        <Text style={styles.mapInfo}>Välj plats på kartan</Text>
+                                    }
                                     <MapView provider='google'
                                         showsUserLocation={true}
                                         onPress={(event) => setNewMarker(event.nativeEvent.coordinate)}
@@ -116,6 +119,7 @@ function Post() {
                             </View>
                             {show && (
                                 <DateTimePicker
+
                                     minuteInterval={5}
                                     testID="dateTimePicker"
                                     timeZoneOffsetInMinutes={0}
@@ -307,7 +311,7 @@ const styles = StyleSheet.create({
     btnText: {
         fontSize: 16,
         color: '#fff'
-      },
+    },
     inputMultiline: {
         backgroundColor: '#fff',
         borderColor: '#000',
@@ -323,13 +327,25 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginTop: 20,
         marginBottom: 20,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     mapStyle: {
         width: Dimensions.get('window').width - 50,
         height: Dimensions.get('window').height - 400,
-        
+
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    mapInfo: {
+        position: 'absolute',
+        // fontWeight: 'bold',
+        fontSize: 30,
+        color: '#fff',
+        zIndex: 3,
+        textShadowColor: 'rgba(0, 0, 0, 0.95)',
+        textShadowOffset: { width: -2, height: 2 },
+        textShadowRadius: 5
     },
     dateTime: {
         flexDirection: 'row',
