@@ -9,9 +9,13 @@ import Background from '../components/Background'
 import { FontAwesome } from '@expo/vector-icons'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Localhost from '../components/Localhost'
+import Context from '../Context/Context'
+import { useObserver } from 'mobx-react-lite'
+
+
 
 function Post() {
-
+    const store = useContext(Context)
     //Data to send to db
     const [newMarker, setNewMarker] = useState({ longitude: null, latitude: null })
     const [date, setDate] = useState(new Date());
@@ -26,6 +30,7 @@ function Post() {
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
     const [dateString, setDateString] = useState()
+    const [dateStringSmall, setDateStringSmall] = useState()
     const [timeString, setTimeString] = useState()
     const months = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
 
@@ -47,6 +52,40 @@ function Post() {
 
     };
 
+    const createEvent = () => {
+        
+        fetch(`${Localhost}:3000/events`, {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          event: activity,  
+          date: dateStringSmall,
+          created: new Date(),
+          duration: duration,
+          description: description,
+          location: city,
+          time: timeString,
+          attendees: '[]',
+          limit: limit,
+          hostId: null,
+          hostName: store.user.username,
+          longitude: newMarker.longitude,
+          latitude: newMarker.latitude
+        })
+      })
+      .then(result => {
+        if (result.status === 201) {
+          console.log('Eventet skapat')
+        //   clearFields()
+        }
+        else {
+          console.log('Något gick fel')
+        }
+      })
+    }
+
     //Date-time-picker 
     const showMode = currentMode => {
         setShow(true);
@@ -65,11 +104,12 @@ function Post() {
         const currentDate = selectedDate || date;
         setShow(Platform.OS === 'ios');
         setDate(currentDate);
+        setDateStringSmall(`${currentDate.getDate()} ${months[currentDate.getMonth()]}`)
         setDateString(`${currentDate.getDate()} ${months[currentDate.getMonth()]}, ${currentDate.getFullYear()}`)
-        setTimeString(`${currentDate.getHours()}:${currentDate.getMinutes().toString().length > 1 ? currentDate.getMinutes() : '0' + currentDate.getMinutes()}`)
+        setTimeString(`${currentDate.getHours()}.${currentDate.getMinutes().toString().length > 1 ? currentDate.getMinutes() : '0' + currentDate.getMinutes()}`)
     };
 
-    return (
+    return useObserver(() => (
         <>
             <View style={styles.header}>
                 <Text style={styles.headerTxt}>Skapa ett nytt event</Text>
@@ -154,13 +194,13 @@ function Post() {
                                     placeholder={{ label: 'Välj aktivitet' }}
                                     onValueChange={(value) => setActivity(value)}
                                     items={[
-                                        { label: 'Löpning', value: 'running' },
-                                        { label: 'Promenad', value: 'walking' },
-                                        { label: 'Padel', value: 'padel' },
-                                        { label: 'Fotboll', value: 'football' },
-                                        { label: 'Simning', value: 'swimming' },
-                                        { label: 'Frisbeegolf', value: 'discgolf' },
-                                        { label: 'Övrigt', value: 'other' }
+                                        { label: 'Löpning', value: 'Löpning' },
+                                        { label: 'Promenad', value: 'Promenad' },
+                                        { label: 'Padel', value: 'Padel' },
+                                        { label: 'Fotboll', value: 'Fotboll' },
+                                        { label: 'Simning', value: 'Simning' },
+                                        { label: 'Frisbeegolf', value: 'Frisbeegolf' },
+                                        { label: 'Övrigt', value: 'Övrigt' }
                                     ]}
                                 />
                                 <Text style={styles.text}>Beskrivning</Text>
@@ -212,13 +252,13 @@ function Post() {
                                     placeholder={{ label: 'Välj längd på eventet' }}
                                     onValueChange={(value) => setDuration(value)}
                                     items={[
-                                        { label: '30 min', value: '30' },
-                                        { label: '45 min', value: '45' },
-                                        { label: '60 min', value: '60' },
-                                        { label: '75 min', value: '75' },
-                                        { label: '90 min', value: '90' },
-                                        { label: '120 min', value: '120' },
-                                        { label: '180 min', value: '180' }
+                                        { label: '30 min', value: '30 min' },
+                                        { label: '45 min', value: '45 min' },
+                                        { label: '60 min', value: '60 min' },
+                                        { label: '75 min', value: '75 min' },
+                                        { label: '90 min', value: '90 min' },
+                                        { label: '120 min', value: '120 min' },
+                                        { label: '180 min', value: '180 min' }
                                     ]}
                                 />
                                 <Text style={styles.text}>Max antal deltagare</Text>
@@ -229,10 +269,13 @@ function Post() {
                                     onChangeText={value => setLimit(value)}
                                 />
                             </View>
-                            <TouchableOpacity style={styles.btn} onPress={() => {
-                                console.log(date, newMarker.longitude, newMarker.latitude, activity, description, city, duration, limit)
+                            <TouchableOpacity style={styles.btn} onPress={() => createEvent()}
+                            
+                            
+                            
+                                /* console.log(date, newMarker.longitude, newMarker.latitude, activity, description, city, duration, limit) */
 
-                                fetch(`${Localhost}:3000/posts`, {
+                            /* fetch(`${Localhost}:3000/posts`, {
                                     method: "post",
                                     headers: {
                                         "Content-Type": "application/json"
@@ -249,21 +292,12 @@ function Post() {
                                         attendies: null,
                                         limit: 1
                                     })
-                                })
+                                }) */
 
                                 //TODO - Här ska fetch till db ske.INSERT - sats, och sen sätta fälten till noll
 
-                                {/* setEvents([{
-                                id: uuidv4(),
-                                date: date,
-                                activity: activity,
-                                description: description,
-                                city: city,
-                                duration: duration,
-                                limit: limit,
-                                attendees: null
-                            }, ...events]) */}
-                            }}>
+                               
+                            >
                                 <Text style={styles.btnText}>Skapa event</Text>
                             </TouchableOpacity>
                         </View>
@@ -272,7 +306,7 @@ function Post() {
                 </KeyboardAvoidingView>
             </SafeAreaView>
         </>
-    );
+    ));
 }
 
 const styles = StyleSheet.create({

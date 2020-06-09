@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, Dimensions, RefreshControl, Modal, TouchableOpacity, TextInput, TouchableHighlight } from 'react-native';
+import { StyleSheet, Switch, Text, View, FlatList, Dimensions, RefreshControl, Modal, TouchableOpacity, TextInput, TouchableHighlight } from 'react-native';
 import Context from '../Context/Context'
 import CheckBox from '@react-native-community/checkbox';
 import Background from '../components/Background'
@@ -22,6 +22,11 @@ function Home() {
   const [location, setLocation] = useState()
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [eventModalVisible, setEventModalVisible] = useState(false)
+
+  //Filtreringsboxar
+  const [walking, setWalking] = useState(true)
+
+
 
   useEffect(() => {
     getLocationAsync()
@@ -179,7 +184,7 @@ function Home() {
         <Background />
 
         {/* Visa lista med events */}
-        {!mapVisible ?
+        {!mapVisible && store.filteredEvents ?
           <FlatList
             data={store.filteredEvents}
             renderItem={({ item }) =>
@@ -215,7 +220,7 @@ function Home() {
 
           // Eller kartan med events
           : <View>
-            {location ?
+            {location && store.filteredEvents ?
               <View style={styles.mapContainer}>
                 <MapView provider='google'
                   showsUserLocation={true}
@@ -229,7 +234,7 @@ function Home() {
                   style={styles.mapStyle}
 
                 >
-                  {store.events.map(event => (
+                  {store.filteredEvents.map(event => (
                     event.latitude && (
                       <Marker
                         coordinate={{ latitude: event.latitude, longitude: event.longitude }}
@@ -257,14 +262,14 @@ function Home() {
                     <Text style={styles.text}>Skapad av: {store.markedEventInfo.hostName}</Text>
                     <Text style={styles.text}>Bokade platser: {(JSON.parse(store.markedEventInfo.attendees)).length > 0 ? (JSON.parse(store.markedEventInfo.attendees)).length : 0}/{store.markedEventInfo.limit}</Text>
                     {(JSON.parse(store.markedEventInfo.attendees)).some(a => a.name === store.user.username) ?
-                    <View style={styles.arrow}>
-                      <Ionicons name="ios-checkmark-circle" size={30} color="lightgreen" />
-                    </View>
-                    :
-                    <View style={styles.arrow}>
-                      <Ionicons name="ios-arrow-dropright-circle" size={30} color="#68bed8" />
-                    </View>}
-                    
+                      <View style={styles.arrow}>
+                        <Ionicons name="ios-checkmark-circle" size={30} color="lightgreen" />
+                      </View>
+                      :
+                      <View style={styles.arrow}>
+                        <Ionicons name="ios-arrow-dropright-circle" size={30} color="#68bed8" />
+                      </View>}
+
                   </View>
                 </TouchableOpacity>
               </>
@@ -308,14 +313,14 @@ function Home() {
                     disabled={(JSON.parse(store.markedEvent.attendees)).length >= store.markedEventInfo.limit && ((JSON.parse(store.markedEventInfo.attendees)).filter(a => a.name === store.user.username)).length === 0}
                     style={(JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit && ((JSON.parse(store.markedEventInfo.attendees)).filter(a => a.name === store.user.username)).length === 0 ? styles.inactiveBtn : styles.unBookBtn}
                     onPress={() => cancelParticipation(store.markedEventInfo)}>
-                    <Text style={styles.btnText}>Avboka dig!</Text>
+                    <Text style={styles.btnText}>Avboka din plats</Text>
                   </TouchableOpacity>
                   :
                   <TouchableOpacity
-                    disabled={(JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit}
-                    style={(JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit ? styles.inactiveBtn : styles.regBtn}
+                    disabled={(JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit || store.markedEventInfo.hostName === store.user.username}
+                    style={(JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit || store.markedEventInfo.hostName === store.user.username ? styles.inactiveBtn : styles.regBtn}
                     onPress={() => attendToEvent(store.markedEventInfo)}>
-                    <Text style={styles.btnText}>Boka dig!</Text>
+                    <Text style={styles.btnText}>Boka en plats</Text>
                   </TouchableOpacity>}
 
               </>)}
@@ -357,7 +362,8 @@ function Home() {
                   }
                 }}
                 placeholder={{ label: 'Välj stad' }}
-                onValueChange={(value) => setCity(value)}
+                onValueChange={(value) => store.setCityFilter(value)}
+                value={store.cityFilter}
                 items={[
                   { label: 'Göteborg', value: 'Göteborg' },
                   { label: 'Stockholm', value: 'Stockholm' },
@@ -366,15 +372,33 @@ function Home() {
               />
               <Text style={styles.text}>Filtrera efter aktivitet</Text>
 
+              <Switch
+                trackColor={{ false: "#767577", true: "#81b0ff" }}
+                thumbColor={true ? "#f5dd4b" : "#f4f3f4"}
+                ios_backgroundColor="#3e3e3e"
+                
+                value={true}
+              />
+
               <View style={styles.checkboxesContainer}>
-                <FlatList
+                <View style={styles.optionContainer}>
+                  <CheckBox
+                    disabled={false}
+                    value={walking}
+                    onValueChange={() => walking ? setWalking(false) : setWalking(true)}
+                  />
+                  <Text>Löpning</Text>
+                </View>
+
+
+                {/* <FlatList
                   numColumns={2}
                   data={store.eventTypes}
                   renderItem={({ item }) =>
-                    <View style={styles.optionContainer}>
+                    <View style={styles.optionContainer} onPress={() => console.log('klick')}>
                       <CheckBox
                         value={true}
-                        onPress={() => console.log('klick')}
+                        
                       />
                       <Text>{item}</Text>
                     </View>
@@ -382,7 +406,7 @@ function Home() {
 
                   keyExtractor={item => item}
 
-                />
+                /> */}
               </View>
               <TouchableOpacity
                 style={styles.regBtn}
@@ -599,11 +623,12 @@ const styles = StyleSheet.create({
     borderRadius: 5
   },
   checkboxesContainer: {
-    justifyContent: 'center',
-    flexDirection: 'row'
+    maxHeight: 200,
+    flexDirection: 'column',
+    flexWrap: 'wrap',
+    alignContent: 'stretch'
   },
   optionContainer: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center'
   },
