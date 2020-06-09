@@ -27,6 +27,23 @@ function Home() {
     getLocationAsync()
   }, [])
 
+  useEffect(() => {
+    loadEventsFromDatabase()
+  }, [])
+
+  const loadEventsFromDatabase = () => {
+    console.log('Hämtar från db')
+    fetch(`${Localhost}:3000/events`)
+      .then(response => response.json())
+      .then(result => {
+        store.setEvents(result)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+
   getLocationAsync = async () => {
     (async () => {
       let { status } = await Location.requestPermissionsAsync();
@@ -39,6 +56,37 @@ function Home() {
     })();
 
   };
+
+  const attendToEvent = (event) => {
+    
+    let att = JSON.parse(event.attendees)
+    console.log(att)
+    att.push({"name" : store.user.username})
+
+    let att2 = JSON.stringify(att)
+   
+    
+    fetch(`${Localhost}:3000/events`, {
+      method: "put",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: event.id,
+        attendees: att2
+      })
+    }).then(result => {
+      if (result.status === 200) {
+        console.log('Uppdatering lyckades')
+        loadEventsFromDatabase()
+        setEventModalVisible(!eventModalVisible)
+      }
+      else {
+        console.log('Något gick fel')
+      }
+    })
+  }
+
 
   // const { loggedIn, setLoggedIn, user, setUser, events, setEvents } = useContext(Context)
 
@@ -78,7 +126,7 @@ function Home() {
     fetch(`${Localhost}:3000/events`)
       .then(response => response.json())
       .then(result => {
-        setEvents(result)
+        store.setEvents(result)
       })
       .catch((error) => {
         console.log(error)
@@ -211,19 +259,19 @@ function Home() {
               <FontAwesome name='close' size={24} color='#fff' /></TouchableOpacity>
             {store.markedEvent && (
               <>
-              <ScrollView style={styles.infoBox}>
-                <View style={styles.infoBoxContent}>
-                  <Text style={styles.eventText}>{store.markedEvent.event} med {store.markedEvent.hostName} - {store.markedEvent.duration}</Text>
-                  <Text>{store.markedEvent.date}, kl. {store.markedEvent.time}</Text>
+                <ScrollView style={styles.infoBox}>
+                  <View style={styles.infoBoxContent}>
+                    <Text style={styles.eventText}>{store.markedEvent.event} med {store.markedEvent.hostName} - {store.markedEvent.duration}</Text>
+                    <Text>{store.markedEvent.date}, kl. {store.markedEvent.time}</Text>
 
-                  <Text>{store.markedEvent.location}</Text>
-                  <Text style={styles.description}>"{store.markedEvent.description}"</Text>
+                    <Text>{store.markedEvent.location}</Text>
+                    <Text style={styles.description}>"{store.markedEvent.description}"</Text>
 
                   </View>
-              </ScrollView>
-              <Text style={styles.eventText}>Bokade platser {(JSON.parse(store.markedEvent.attendees)).length > 0 ? (JSON.parse(store.markedEvent.attendees)).length : 0}/{store.markedEvent.limit}</Text>
-                
-              <TouchableOpacity style={styles.regBtn}><Text style={styles.btnText}>Boka dig!</Text></TouchableOpacity>
+                </ScrollView>
+                <Text style={styles.eventText}>Bokade platser {(JSON.parse(store.markedEvent.attendees)).length > 0 ? (JSON.parse(store.markedEvent.attendees)).length : 0}/{store.markedEvent.limit}</Text>
+
+                <TouchableOpacity style={styles.regBtn} onPress={() => attendToEvent(store.markedEvent)}><Text style={styles.btnText}>Boka dig!</Text></TouchableOpacity>
               </>)}
           </View>
         </View>
