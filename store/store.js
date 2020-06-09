@@ -12,6 +12,15 @@ const store = observable({
         // return store.events.filter(event => event.location === 'Stockholm' && event.event === 'Badminton')
     },
 
+    get markedEventInfo(){
+        
+        return store.events.filter(event => event.id == store.markedEvent.id)[0]
+    },
+
+    // get markedEventData(){
+    //     return store.events.filter(event => event.id == store.markedEvent.id)
+    // },
+
     // get markedEvent(){
     //     return store.events.filter(event => event.id == store.markedEventId)
     // },

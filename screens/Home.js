@@ -58,14 +58,33 @@ function Home() {
   };
 
   const attendToEvent = (event) => {
-    
     let att = JSON.parse(event.attendees)
-    console.log(att)
-    att.push({"name" : store.user.username})
-
+    att.push({ "name": store.user.username })
     let att2 = JSON.stringify(att)
-   
-    
+    fetch(`${Localhost}:3000/events`, {
+      method: "put",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: event.id,
+        attendees: att2
+      })
+    }).then(result => {
+      if (result.status === 200) {
+        console.log('Uppdatering lyckades')
+        loadEventsFromDatabase()
+        setEventModalVisible(!eventModalVisible)
+      }
+      else {
+        console.log('Något gick fel')
+      }
+    })
+  }
+
+  const cancelParticipation = (event) => {
+    let att = JSON.parse(event.attendees)
+    let att2 = JSON.stringify(att.filter(attendee => attendee.name != store.user.username))
     fetch(`${Localhost}:3000/events`, {
       method: "put",
       headers: {
@@ -174,9 +193,15 @@ function Home() {
                   <Text style={styles.text}>{item.location}</Text>
                   <Text style={styles.text}>Skapad av: {item.hostName}</Text>
                   <Text style={styles.text}>Bokade platser: {(JSON.parse(item.attendees)).length > 0 ? (JSON.parse(item.attendees)).length : 0}/{item.limit}</Text>
-                  <View style={styles.arrow}>
-                    <Ionicons name="ios-arrow-dropright" size={30} color="#68bed8" />
-                  </View>
+                  {(JSON.parse(item.attendees)).some(a => a.name === store.user.username) ?
+                    <View style={styles.arrow}>
+                      <Ionicons name="ios-checkmark-circle" size={30} color="lightgreen" />
+                    </View>
+                    :
+                    <View style={styles.arrow}>
+                      <Ionicons name="ios-arrow-dropright-circle" size={30} color="#68bed8" />
+                    </View>}
+
 
                 </View>
               </TouchableOpacity>}
@@ -218,25 +243,33 @@ function Home() {
               </View>
               : <View style={styles.mapStyle}><Text>Hämtar karta...</Text></View>}
 
-            {/* Visar valt event  */}
+            {/* Visar valt event under kartan  */}
             {store.markedEvent ?
-              <TouchableOpacity onPress={() => setEventModalVisible(true)}>
-                <View style={styles.box2}>
-                  <View style={styles.date}>
-                    <Text style={styles.dateText}>{store.markedEvent.date}</Text>
+              <>
+                <TouchableOpacity onPress={() => setEventModalVisible(true)}>
+                  <View style={styles.box2}>
+                    <View style={styles.date}>
+                      <Text style={styles.dateText}>{store.markedEventInfo.date}</Text>
+                    </View>
+                    <Text style={styles.eventTime}>{store.markedEventInfo.time}</Text>
+                    <Text style={styles.eventText}>{store.markedEventInfo.event}, {store.markedEventInfo.duration}</Text>
+                    <Text style={styles.text}>{store.markedEventInfo.location}</Text>
+                    <Text style={styles.text}>Skapad av: {store.markedEventInfo.hostName}</Text>
+                    <Text style={styles.text}>Bokade platser: {(JSON.parse(store.markedEventInfo.attendees)).length > 0 ? (JSON.parse(store.markedEventInfo.attendees)).length : 0}/{store.markedEventInfo.limit}</Text>
+                    {(JSON.parse(store.markedEventInfo.attendees)).some(a => a.name === store.user.username) ?
+                    <View style={styles.arrow}>
+                      <Ionicons name="ios-checkmark-circle" size={30} color="lightgreen" />
+                    </View>
+                    :
+                    <View style={styles.arrow}>
+                      <Ionicons name="ios-arrow-dropright-circle" size={30} color="#68bed8" />
+                    </View>}
+                    
                   </View>
-                  <Text style={styles.eventTime}>{store.markedEvent.time}</Text>
-                  <Text style={styles.eventText}>{store.markedEvent.event}, {store.markedEvent.duration}</Text>
-                  <Text style={styles.text}>{store.markedEvent.location}</Text>
-                  <Text style={styles.text}>Skapad av: {store.markedEvent.hostName}</Text>
-                  <Text style={styles.text}>Bokade platser: {(JSON.parse(store.markedEvent.attendees)).length > 0 ? (JSON.parse(store.markedEvent.attendees)).length : 0}/{store.markedEvent.limit}</Text>
-                  <View style={styles.arrow}>
-                    <Ionicons name="ios-arrow-dropright" size={30} color="#68bed8" />
-                  </View>
-
-                </View>
-              </TouchableOpacity>
-              : <View></View>}
+                </TouchableOpacity>
+              </>
+              : <View></View>
+            }
           </View>}
 
       </View>
@@ -261,17 +294,30 @@ function Home() {
               <>
                 <ScrollView style={styles.infoBox}>
                   <View style={styles.infoBoxContent}>
-                    <Text style={styles.eventText}>{store.markedEvent.event} med {store.markedEvent.hostName} - {store.markedEvent.duration}</Text>
-                    <Text>{store.markedEvent.date}, kl. {store.markedEvent.time}</Text>
+                    <Text style={styles.eventText}>{store.markedEventInfo.event} med {store.markedEventInfo.hostName} - {store.markedEventInfo.duration}</Text>
+                    <Text>{store.markedEventInfo.date}, kl. {store.markedEventInfo.time}</Text>
 
-                    <Text>{store.markedEvent.location}</Text>
-                    <Text style={styles.description}>"{store.markedEvent.description}"</Text>
+                    <Text>{store.markedEventInfo.location}</Text>
+                    <Text style={styles.description}>"{store.markedEventInfo.description}"</Text>
 
                   </View>
                 </ScrollView>
-                <Text style={styles.eventText}>Bokade platser {(JSON.parse(store.markedEvent.attendees)).length > 0 ? (JSON.parse(store.markedEvent.attendees)).length : 0}/{store.markedEvent.limit}</Text>
+                <Text style={styles.eventText}>Bokade platser {(JSON.parse(store.markedEventInfo.attendees)).length > 0 ? (JSON.parse(store.markedEventInfo.attendees)).length : 0}/{store.markedEventInfo.limit}</Text>
+                {(JSON.parse(store.markedEventInfo.attendees)).some(a => a.name === store.user.username) ?
+                  <TouchableOpacity
+                    disabled={(JSON.parse(store.markedEvent.attendees)).length >= store.markedEventInfo.limit && ((JSON.parse(store.markedEventInfo.attendees)).filter(a => a.name === store.user.username)).length === 0}
+                    style={(JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit && ((JSON.parse(store.markedEventInfo.attendees)).filter(a => a.name === store.user.username)).length === 0 ? styles.inactiveBtn : styles.unBookBtn}
+                    onPress={() => cancelParticipation(store.markedEventInfo)}>
+                    <Text style={styles.btnText}>Avboka dig!</Text>
+                  </TouchableOpacity>
+                  :
+                  <TouchableOpacity
+                    disabled={(JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit}
+                    style={(JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit ? styles.inactiveBtn : styles.regBtn}
+                    onPress={() => attendToEvent(store.markedEventInfo)}>
+                    <Text style={styles.btnText}>Boka dig!</Text>
+                  </TouchableOpacity>}
 
-                <TouchableOpacity style={styles.regBtn} onPress={() => attendToEvent(store.markedEvent)}><Text style={styles.btnText}>Boka dig!</Text></TouchableOpacity>
               </>)}
           </View>
         </View>
@@ -501,6 +547,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5
+  },
+  unBookBtn: {
+    backgroundColor: '#e36565',
+    width: 250,
+    height: 50,
+    marginTop: 30,
+    marginBottom: 30,
+    padding: 20,
+    borderWidth: 0,
+    borderColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5
+  },
+  inactiveBtn: {
+    // backgroundColor: '#68bed8',
+    backgroundColor: '#e36565',
+    width: 250,
+    height: 50,
+    marginTop: 30,
+    marginBottom: 30,
+    padding: 20,
+    borderWidth: 0,
+    borderColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+    opacity: 0.3
   },
   headerText: {
     fontWeight: 'bold',
