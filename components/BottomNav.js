@@ -57,7 +57,7 @@ function BottomNav() {
         showLabel: false,
         labelStyle: {
           fontSize: 12,
-          fontWeight: 'bold'
+          fontWeight: 'bold',
         },
         style: {
           backgroundColor: '#68bed8',

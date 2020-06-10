@@ -52,8 +52,10 @@ function Post() {
 
     };
 
+    
+
     const createEvent = () => {
-        
+        console.log(date)
         fetch(`${Localhost}:3000/events`, {
         method: "post",
         headers: {
@@ -62,6 +64,7 @@ function Post() {
         body: JSON.stringify({
           event: activity,  
           date: dateStringSmall,
+          completeDate: date,
           created: new Date(),
           duration: duration,
           description: description,
@@ -374,7 +377,7 @@ const styles = StyleSheet.create({
     mapInfo: {
         position: 'absolute',
         // fontWeight: 'bold',
-        fontSize: 30,
+        fontSize: 24,
         color: '#fff',
         zIndex: 3,
         textShadowColor: 'rgba(0, 0, 0, 0.95)',

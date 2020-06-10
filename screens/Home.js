@@ -23,9 +23,7 @@ function Home() {
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [eventModalVisible, setEventModalVisible] = useState(false)
 
-  //Filtreringsboxar
-  const [walking, setWalking] = useState(true)
-
+  console.log(store.cityFilter)
 
 
   useEffect(() => {
@@ -112,27 +110,10 @@ function Home() {
   }
 
 
-  // const { loggedIn, setLoggedIn, user, setUser, events, setEvents } = useContext(Context)
-
-  // const getEvents = () => {
-  //   setEvents()
-  //   // fetch(`http://192.168.0.12:3000/events`)
-  //   // .then(response => response.json())
-  //   // .then(result => {
-  //   //   setEvents(result)  
-  //   // })
-  //   // .catch((error) => {
-  //   //   console.log(error)
-  //   // })
-  // }
-
   const months = ['januari', 'februari', 'mars', 'april', 'maj', 'juni', 'juli', 'augusti', 'september', 'oktober', 'november', 'december']
   const date = new Date()
   const today = `${date.getDate().toString()} ${months[date.getMonth()]}`
-  // useEffect(() => {
-  //   console.log('ska hämta')
-  //   getEvents()
-  // }, [])
+
   const [mapVisible, setMapVisible] = useState(false)
   const showEvent = id => {
     store.setMarkedEvent(id)
@@ -188,7 +169,9 @@ function Home() {
           <FlatList
             data={store.filteredEvents}
             renderItem={({ item }) =>
+            
               <TouchableOpacity onPress={() => { showEvent(item.id) }}>
+              {store.filteredEventTypes.filter(type => type.type === item.event).length > 0 &&
                 <View style={styles.box}>
                   <View style={styles.date}>
                     <Text style={styles.dateText}>{item.date}</Text>
@@ -209,6 +192,7 @@ function Home() {
 
 
                 </View>
+              }
               </TouchableOpacity>}
             refreshControl={
               <RefreshControl
@@ -235,7 +219,7 @@ function Home() {
 
                 >
                   {store.filteredEvents.map(event => (
-                    event.latitude && (
+                    event.latitude && store.filteredEventTypes.filter(type => type.type === event.event).length > 0 &&(
                       <Marker
                         coordinate={{ latitude: event.latitude, longitude: event.longitude }}
                         title={`${event.event}, ${event.duration} `}
@@ -249,7 +233,7 @@ function Home() {
               : <View style={styles.mapStyle}><Text>Hämtar karta...</Text></View>}
 
             {/* Visar valt event under kartan  */}
-            {store.markedEvent ?
+            {store.markedEvent && (store.cityFilter === undefined || store.markedEvent.location === store.cityFilter) && store.filteredEventTypes.filter(type => type.type === store.markedEventInfo.event).length > 0 ?
               <>
                 <TouchableOpacity onPress={() => setEventModalVisible(true)}>
                   <View style={styles.box2}>
@@ -361,7 +345,7 @@ function Home() {
                     borderRadius: 5
                   }
                 }}
-                placeholder={{ label: 'Välj stad' }}
+                placeholder={{ label: 'Alla städer' }}
                 onValueChange={(value) => store.setCityFilter(value)}
                 value={store.cityFilter}
                 items={[
@@ -372,49 +356,28 @@ function Home() {
               />
               <Text style={styles.text}>Filtrera efter aktivitet</Text>
 
-              <Switch
-                trackColor={{ false: "#767577", true: "#81b0ff" }}
-                thumbColor={true ? "#f5dd4b" : "#f4f3f4"}
-                ios_backgroundColor="#3e3e3e"
-                
-                value={true}
-              />
+
 
               <View style={styles.checkboxesContainer}>
-                <View style={styles.optionContainer}>
+
+                {store.eventTypes.map(event => 
+                <View style={styles.optionContainer} key={event.id}>
                   <CheckBox
-                    disabled={false}
-                    value={walking}
-                    onValueChange={() => walking ? setWalking(false) : setWalking(true)}
+                    onValueChange={() => store.updateCheckbox(event.id)}
+                    value={event.checked}
                   />
-                  <Text>Löpning</Text>
-                </View>
-
-
-                {/* <FlatList
-                  numColumns={2}
-                  data={store.eventTypes}
-                  renderItem={({ item }) =>
-                    <View style={styles.optionContainer} onPress={() => console.log('klick')}>
-                      <CheckBox
-                        value={true}
-                        
-                      />
-                      <Text>{item}</Text>
-                    </View>
-                  }
-
-                  keyExtractor={item => item}
-
-                /> */}
+                  <Text>{event.type}</Text>
+                </View>)}
               </View>
+
               <TouchableOpacity
                 style={styles.regBtn}
                 onPress={() => {
                   setFilterModalVisible(!filterModalVisible);
+
                 }}>
 
-                <Text style={styles.btnText}>Filtrera</Text>
+                <Text style={styles.btnText}>Tillbaka</Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -15,6 +15,17 @@ function Login() {
   const [newUser, setNewUser] = useState()
 
 
+  //New user data
+  const [newUsername, setNewUsername] = useState()
+  const [newPassword, setNewPassword] = useState()
+  const [newFirstName, setNewFirstName] = useState()
+  const [newLastName, setNewLastName] = useState()
+  const [newBirthyear, setNewBirthyear] = useState()
+  const [newPhone, setNewPhone] = useState()
+  const [newEmail, setNewEmail] = useState()
+
+  const [error, setError] = useState(false)
+
   const login = () => {
     fetch(`${Localhost}:3000/login`, {
       method: "post",
@@ -38,6 +49,38 @@ function Login() {
         console.log('Något gick fel')
       }
     })
+  }
+
+  const addNewUser = () => {
+    setError(false)
+
+    fetch(`${Localhost}:3000/users`, {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: newUsername,
+        password: newPassword,
+        firstname: newFirstName,
+        lastname: newLastName,
+        email: newEmail,
+        phone: newPhone,
+        birthyear: newBirthyear,
+        gender: 'Man',
+        city: 'Göteborg'
+
+      })
+    })
+      .then(result => {
+        if (result.status === 201) {
+          setModalVisible(false)
+        }
+        else {
+          setError(true)
+
+        }
+      })
   }
 
   const getUserData = () => {
@@ -89,39 +132,44 @@ function Login() {
                   <Text style={styles.text}>Användarnamn</Text>
                   <TextInput
                     style={styles.input}
-
+                    onChangeText={value => setNewUsername(value)}
                   />
+                  {error && <Text style={styles.error}>Användarnamnet är upptaget!</Text>}
                   <Text style={styles.text}>Lösenord</Text>
                   <TextInput
                     secureTextEntry={true}
                     style={styles.input}
+                    onChangeText={value => setNewPassword(value)}
                   />
                   <Text style={styles.text}>Förnamn</Text>
                   <TextInput
                     style={styles.input}
+                    onChangeText={value => setNewFirstName(value)}
                   />
                   <Text style={styles.text}>Efternamn</Text>
                   <TextInput
                     style={styles.input}
+                    onChangeText={value => setNewLastName(value)}
                   />
                   <Text style={styles.text}>Födelseår</Text>
                   <TextInput
-                    keyboardType={'number-pad'}
+                    keyboardType={"number-pad"}
                     style={styles.input}
+                    onChangeText={value => setNewBirthyear(value)}
                   />
                   <Text style={styles.text}>Telefon</Text>
                   <TextInput
                     style={styles.input}
+                    onChangeText={value => setNewPhone(value)}
                   />
                   <Text style={styles.text}>Email</Text>
                   <TextInput
                     style={styles.input}
+                    onChangeText={value => setNewEmail(value)}
                   />
                   <TouchableOpacity
                     style={styles.regBtn}
-                    onPress={() => {
-                      setModalVisible(!modalVisible);
-                    }}>
+                    onPress={() => addNewUser()}>
                     <Text style={styles.btnText}>Registrera</Text>
                   </TouchableOpacity>
                 </View>
@@ -137,20 +185,18 @@ function Login() {
             <TouchableOpacity style={styles.btn} onPress={login}>
               <Text style={styles.btnText}>Logga in</Text>
             </TouchableOpacity>
-            <Text>Namn: {store.inloggedUser.name}</Text>
-            <Text>PW: {store.inloggedUser.password}</Text>
             <TouchableOpacity style={styles.register}>
               <Text style={styles.registerText} onPress={() => {
                 setModalVisible(true);
               }}>Ny användare? Registrera konto här!</Text>
             </TouchableOpacity>
           </View>
-          : <View style={styles.form}>
-            <Text style={styles.textCenter}>Inloggad som {store.inloggedUser.name}</Text>
-            <TouchableOpacity style={styles.btn} onPress={logout}>
-              <Text style={styles.text}>Logga ut</Text>
-            </TouchableOpacity>
-          </View>}
+            : <View style={styles.form}>
+              <Text style={styles.textCenter}>Inloggad som {store.inloggedUser.name}</Text>
+              <TouchableOpacity style={styles.btn} onPress={logout}>
+                <Text style={styles.text}>Logga ut</Text>
+              </TouchableOpacity>
+            </View>}
 
         </View>
       </TouchableWithoutFeedback>

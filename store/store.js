@@ -7,14 +7,28 @@ const store = observable({
         return store.value - 1
     },
 
+    // get eventTypesData(){
+    //     return store.eventTypes
+    // },
+
     get filteredEvents() {
-        if(store.cityFilter){
+        if (store.cityFilter) {
             return store.events.filter(event => event.location === store.cityFilter)
         }
-        else{
+        else {
             return store.events
         }
-        // return store.events.filter(event => event.location === 'Stockholm' && event.event === 'Badminton')
+        // var objs = [ 
+        //     { first_nom: 'Lazslo', last_nom: 'Jamf'     },
+        //     { first_nom: 'Pig',    last_nom: 'Bodine'   },
+        //     { first_nom: 'Pirate', last_nom: 'Prentice' }
+        // ];
+        // objs.sort((a, b) => a.last_nom.localeCompare(b.last_nom))
+    },
+
+    get filteredEventTypes(){
+        console.log(store.eventTypes.filter(type => type.checked === true).length)
+        return store.eventTypes.filter(type => type.checked === true)
     },
 
     get markedEventInfo() {
@@ -35,12 +49,16 @@ const store = observable({
         store.value++
     },
 
-    setCityFilter(city){
+    setCityFilter(city) {
         store.cityFilter = city
     },
 
     setEvents(events) {
         store.events = events
+    },
+
+    setFilteredEvents(events) {
+        store.filteredEvents = events
     },
 
     setInloggedUser(value) {
@@ -67,6 +85,16 @@ const store = observable({
         store.loggedIn = false
     },
 
+
+
+    updateCheckbox(id) {
+        console.log('Ändrar checkbox värde')
+        let objIndex = store.eventTypes.findIndex((obj => obj.id == id))
+        console.log('Innan ändring: ' + store.eventTypes[objIndex].checked)
+        store.eventTypes[objIndex].checked = !store.eventTypes[objIndex].checked
+        console.log('Efter: ' + store.eventTypes[objIndex].checked)
+    },
+
     // State 
     value: 1,
     cityFilter: null,
@@ -80,11 +108,16 @@ const store = observable({
     // user: null,
     user: { username: 'melker' },
     eventTypes: [
-        {id: 1, type: 'Löpning'},
-        {id: 2, type: 'Promenad'}
-        
+        { id: '1', type: 'Löpning', checked: true },
+        { id: '2', type: 'Promenad', checked: true },
+        { id: '3', type: 'Padel', checked: true },
+        { id: '4', type: 'Fotboll', checked: true },
+        { id: '5', type: 'Simning', checked: true },
+        { id: '6', type: 'Frisbeegolf', checked: true },
+        { id: '7', type: 'Övrigt', checked: true }
+
     ],
-    events: []
+    events: [],
 
 
 })
