@@ -10,10 +10,7 @@ import { FontAwesome } from '@expo/vector-icons'
 
 function Login() {
   const store = useContext(Context)
-  const { loggedIn, setLoggedIn, user, setUser, events, setEvents } = useContext(Context)
   const [modalVisible, setModalVisible] = useState(false);
-  const [newUser, setNewUser] = useState()
-
 
   //New user data
   const [newUsername, setNewUsername] = useState()
@@ -36,20 +33,19 @@ function Login() {
         username: store.inloggedUser.name,
         password: store.inloggedUser.password
       })
-    }).then(result => {
-      if (result.status === 200) {
-        console.log('Inloggning lyckades')
-        getUserData()
-
-      }
-      else if (result.status === 401) {
-        console.log('Felaktigt användarnamn och lösenord')
-      }
-      else {
-        console.log('Något gick fel')
-      }
     })
+      .then(response => response.json())
+      .then(data => {
+        store.setUserData(data[0])
+        store.setAsLoggedIn()
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+
   }
+
+
 
   const addNewUser = () => {
     setError(false)
@@ -83,19 +79,6 @@ function Login() {
       })
   }
 
-  const getUserData = () => {
-    fetch(`${Localhost}:3000/users/${store.inloggedUser.name}`)
-      .then(response => response.json())
-      .then(result => {
-        console.log(result)
-        store.setUserData(result[0])
-        store.setAsLoggedIn()
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  }
-
   const logout = () => {
     store.setAsLoggedOut()
     store.setInloggedUser(null)
@@ -112,6 +95,7 @@ function Login() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.screen}>
           <Background />
+
           <Modal
             animationType="fade"
             transparent={true}

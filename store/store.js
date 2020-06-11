@@ -13,21 +13,16 @@ const store = observable({
 
     get filteredEvents() {
         if (store.cityFilter) {
-            return store.events.filter(event => event.location === store.cityFilter)
+            return store.events.filter(event => event.location === store.cityFilter).slice().sort((a, b) => (a.completeDate > b.completeDate) ? 1 : -1)
         }
         else {
-            return store.events
+            
+            return store.events.slice().sort((a, b) => (a.completeDate > b.completeDate) ? 1 : -1)
         }
-        // var objs = [ 
-        //     { first_nom: 'Lazslo', last_nom: 'Jamf'     },
-        //     { first_nom: 'Pig',    last_nom: 'Bodine'   },
-        //     { first_nom: 'Pirate', last_nom: 'Prentice' }
-        // ];
-        // objs.sort((a, b) => a.last_nom.localeCompare(b.last_nom))
+
     },
 
     get filteredEventTypes(){
-        console.log(store.eventTypes.filter(type => type.checked === true).length)
         return store.eventTypes.filter(type => type.checked === true)
     },
 
@@ -102,11 +97,11 @@ const store = observable({
         name: null,
         password: null
     },
-    loggedIn: true,
+    loggedIn: false,
     markedEventId: null,
     markedEvent: null,
     // user: null,
-    user: { username: 'melker' },
+    user: { username: '' },
     eventTypes: [
         { id: '1', type: 'Löpning', checked: true },
         { id: '2', type: 'Promenad', checked: true },

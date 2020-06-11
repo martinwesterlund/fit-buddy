@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { StyleSheet, Text, TextInput, SafeAreaView, ScrollView, View, Dimensions, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TextInput, SafeAreaView, ScrollView, View, Dimensions, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
 import Constants from 'expo-constants';
 import MapView, { Marker } from 'react-native-maps'
 import * as Location from 'expo-location';
@@ -19,6 +19,8 @@ function Post() {
     //Data to send to db
     const [newMarker, setNewMarker] = useState({ longitude: null, latitude: null })
     const [date, setDate] = useState(new Date());
+    const [dateString, setDateString] = useState()
+    const [dateStringSmall, setDateStringSmall] = useState()
     const [activity, setActivity] = useState()
     const [description, setDescription] = useState()
     const [city, setCity] = useState()
@@ -29,8 +31,7 @@ function Post() {
     const [location, setLocation] = useState()
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
-    const [dateString, setDateString] = useState()
-    const [dateStringSmall, setDateStringSmall] = useState()
+
     const [timeString, setTimeString] = useState()
     const months = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
 
@@ -52,41 +53,57 @@ function Post() {
 
     };
 
-    
+
 
     const createEvent = () => {
         console.log(date)
         fetch(`${Localhost}:3000/events`, {
-        method: "post",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          event: activity,  
-          date: dateStringSmall,
-          completeDate: date,
-          created: new Date(),
-          duration: duration,
-          description: description,
-          location: city,
-          time: timeString,
-          attendees: '[]',
-          limit: limit,
-          hostId: null,
-          hostName: store.user.username,
-          longitude: newMarker.longitude,
-          latitude: newMarker.latitude
+            method: "post",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                event: activity,
+                date: dateStringSmall,
+                completeDate: date,
+                created: new Date(),
+                duration: duration,
+                description: description,
+                location: city,
+                time: timeString,
+                attendees: '[]',
+                limit: limit,
+                hostId: null,
+                hostName: store.user.username,
+                longitude: newMarker.longitude,
+                latitude: newMarker.latitude
+            })
         })
-      })
-      .then(result => {
-        if (result.status === 201) {
-          console.log('Eventet skapat')
-        //   clearFields()
-        }
-        else {
-          console.log('Något gick fel')
-        }
-      })
+            .then(result => {
+                if (result.status === 201) {
+                    console.log('Eventet skapat')
+                    clearFields()
+                }
+                else {
+                    console.log('Något gick fel')
+                }
+            })
+    }
+
+    const clearFields = () => {
+        setNewMarker({ longitude: null, latitude: null })
+        setDate(new Date())
+        setActivity(null)
+        setDateString(null)
+        setDateStringSmall(null)
+        setDescription(null)
+        setCity(null)
+        setDuration(null)
+        setLimit(null)
+        setMode('date')
+        setShow(false)
+        setTimeString(null)
+
     }
 
     //Date-time-picker 
@@ -149,7 +166,10 @@ function Post() {
                                             </Marker>)}
                                     </MapView>
                                 </View>
-                                : <View style={styles.mapStyle}><Text>Hämtar karta...</Text></View>
+                                : <View style={[styles.mapStyle, styles.loadingContainer, styles.horizontal]}>
+                                    <Text style={styles.text}>Laddar karta...</Text>
+                                    <ActivityIndicator size="large" color="#68bed8" />
+                                </View>
                             }
 
                             <View style={styles.dateTime}>
@@ -272,35 +292,7 @@ function Post() {
                                     onChangeText={value => setLimit(value)}
                                 />
                             </View>
-                            <TouchableOpacity style={styles.btn} onPress={() => createEvent()}
-                            
-                            
-                            
-                                /* console.log(date, newMarker.longitude, newMarker.latitude, activity, description, city, duration, limit) */
-
-                            /* fetch(`${Localhost}:3000/posts`, {
-                                    method: "post",
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    },
-                                    body: JSON.stringify({
-                                        postId: 12345,
-                                        title: 'Padel',
-                                        description: 'Söker nybörjare att spela mot. Jag har själv spelat en gång tidigare.',
-                                        city: 'Göteborg',
-                                        timestamp: 'timestamp',
-                                        duration: 60,
-                                        activity: 'activity string here',
-                                        other: 'other string here',
-                                        attendies: null,
-                                        limit: 1
-                                    })
-                                }) */
-
-                                //TODO - Här ska fetch till db ske.INSERT - sats, och sen sätta fälten till noll
-
-                               
-                            >
+                            <TouchableOpacity disabled={!store.loggedIn} style={!store.loggedIn ? styles.inactiveBtn : styles.btn} onPress={() => createEvent()}>
                                 <Text style={styles.btnText}>Skapa event</Text>
                             </TouchableOpacity>
                         </View>
@@ -376,13 +368,12 @@ const styles = StyleSheet.create({
     },
     mapInfo: {
         position: 'absolute',
-        // fontWeight: 'bold',
         fontSize: 24,
         color: '#fff',
         zIndex: 3,
         textShadowColor: 'rgba(0, 0, 0, 0.95)',
         textShadowOffset: { width: -2, height: 2 },
-        textShadowRadius: 5
+        textShadowRadius: 2
     },
     dateTime: {
         flexDirection: 'row',
@@ -428,9 +419,33 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 5
     },
+    inactiveBtn: {
+        // backgroundColor: '#68bed8',
+        backgroundColor: '#e36565',
+        width: 250,
+        height: 50,
+        marginTop: 30,
+        marginBottom: 30,
+        padding: 20,
+        borderWidth: 0,
+        borderColor: '#000',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 5,
+        opacity: 0.3
+      },
     registerText: {
         fontSize: 16,
         textAlign: 'center'
+    },
+    loadingContainer: {
+        justifyContent: 'center',
+
+    },
+    horizontal: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+        padding: 10,
     },
 });
 

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Switch, Text, View, FlatList, Dimensions, RefreshControl, Modal, TouchableOpacity, TextInput, TouchableHighlight } from 'react-native';
+import { ActivityIndicator, StyleSheet, Switch, Text, View, FlatList, Dimensions, RefreshControl, Modal, TouchableOpacity, TextInput, TouchableHighlight } from 'react-native';
 import Context from '../Context/Context'
 import CheckBox from '@react-native-community/checkbox';
 import Background from '../components/Background'
@@ -23,7 +23,6 @@ function Home() {
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [eventModalVisible, setEventModalVisible] = useState(false)
 
-  console.log(store.cityFilter)
 
 
   useEffect(() => {
@@ -169,30 +168,30 @@ function Home() {
           <FlatList
             data={store.filteredEvents}
             renderItem={({ item }) =>
-            
+
               <TouchableOpacity onPress={() => { showEvent(item.id) }}>
-              {store.filteredEventTypes.filter(type => type.type === item.event).length > 0 &&
-                <View style={styles.box}>
-                  <View style={styles.date}>
-                    <Text style={styles.dateText}>{item.date}</Text>
-                  </View>
-                  <Text style={styles.eventTime}>{item.time}</Text>
-                  <Text style={styles.eventText}>{item.event}, {item.duration}</Text>
-                  <Text style={styles.text}>{item.location}</Text>
-                  <Text style={styles.text}>Skapad av: {item.hostName}</Text>
-                  <Text style={styles.text}>Bokade platser: {(JSON.parse(item.attendees)).length > 0 ? (JSON.parse(item.attendees)).length : 0}/{item.limit}</Text>
-                  {(JSON.parse(item.attendees)).some(a => a.name === store.user.username) ?
-                    <View style={styles.arrow}>
-                      <Ionicons name="ios-checkmark-circle" size={30} color="lightgreen" />
+                {store.filteredEventTypes.filter(type => type.type === item.event).length > 0 &&
+                  <View style={styles.box}>
+                    <View style={styles.date}>
+                      <Text style={styles.dateText}>{item.date}</Text>
                     </View>
-                    :
-                    <View style={styles.arrow}>
-                      <Ionicons name="ios-arrow-dropright-circle" size={30} color="#68bed8" />
-                    </View>}
+                    <Text style={styles.eventTime}>{item.time}</Text>
+                    <Text style={styles.eventText}>{item.event}, {item.duration}</Text>
+                    <Text style={styles.text}>{item.location}</Text>
+                    <Text style={styles.text}>Skapad av: {item.hostName}</Text>
+                    <Text style={styles.text}>Bokade platser: {(JSON.parse(item.attendees)).length > 0 ? (JSON.parse(item.attendees)).length : 0}/{item.limit}</Text>
+                    {(JSON.parse(item.attendees)).some(a => a.name === store.user.username) ?
+                      <View style={styles.arrow}>
+                        <Ionicons name="ios-checkmark-circle" size={30} color="lightgreen" />
+                      </View>
+                      :
+                      <View style={styles.arrow}>
+                        <Ionicons name="ios-arrow-dropright-circle" size={30} color="#68bed8" />
+                      </View>}
 
 
-                </View>
-              }
+                  </View>
+                }
               </TouchableOpacity>}
             refreshControl={
               <RefreshControl
@@ -219,7 +218,7 @@ function Home() {
 
                 >
                   {store.filteredEvents.map(event => (
-                    event.latitude && store.filteredEventTypes.filter(type => type.type === event.event).length > 0 &&(
+                    event.latitude && store.filteredEventTypes.filter(type => type.type === event.event).length > 0 && (
                       <Marker
                         coordinate={{ latitude: event.latitude, longitude: event.longitude }}
                         title={`${event.event}, ${event.duration} `}
@@ -230,10 +229,13 @@ function Home() {
                   }
                 </MapView>
               </View>
-              : <View style={styles.mapStyle}><Text>Hämtar karta...</Text></View>}
+              : <View style={[styles.mapStyle, styles.loadingContainer, styles.horizontal]}>
+                <Text style={styles.text}>Laddar karta...</Text>
+                <ActivityIndicator size="large" color="#68bed8" />
+              </View>}
 
             {/* Visar valt event under kartan  */}
-            {store.markedEvent && (store.cityFilter === undefined || store.markedEvent.location === store.cityFilter) && store.filteredEventTypes.filter(type => type.type === store.markedEventInfo.event).length > 0 ?
+            {store.markedEvent && ((store.cityFilter === undefined || store.cityFilter === null) || store.markedEvent.location === store.cityFilter) && store.filteredEventTypes.filter(type => type.type === store.markedEventInfo.event).length > 0 ?
               <>
                 <TouchableOpacity onPress={() => setEventModalVisible(true)}>
                   <View style={styles.box2}>
@@ -360,14 +362,14 @@ function Home() {
 
               <View style={styles.checkboxesContainer}>
 
-                {store.eventTypes.map(event => 
-                <View style={styles.optionContainer} key={event.id}>
-                  <CheckBox
-                    onValueChange={() => store.updateCheckbox(event.id)}
-                    value={event.checked}
-                  />
-                  <Text>{event.type}</Text>
-                </View>)}
+                {store.eventTypes.map(event =>
+                  <View style={styles.optionContainer} key={event.id}>
+                    <CheckBox
+                      onValueChange={() => store.updateCheckbox(event.id)}
+                      value={event.checked}
+                    />
+                    <Text>{event.type}</Text>
+                  </View>)}
               </View>
 
               <TouchableOpacity
@@ -609,6 +611,16 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     paddingTop: 10,
     paddingBottom: 20
-  }
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    
+  },
+  horizontal: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+  },
 });
 export default Home

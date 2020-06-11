@@ -16,7 +16,7 @@ function NewUser() {
         <Modal
             animationType="fade"
             transparent={true}
-            visible={modalVisible}
+            
             onRequestClose={() => {
                 console.log('Modal closing');
             }}>
