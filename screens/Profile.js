@@ -21,15 +21,23 @@ function Profile() {
   const [newBirthyear, setNewBirthyear] = useState()
   const [newPhone, setNewPhone] = useState()
   const [newEmail, setNewEmail] = useState()
+  const [newGender, setNewGender] = useState()
+  const [newCity, setNewCity] = useState()
 
   useEffect(() => {
     if (store.user) {
       setNewUsername(store.user.username)
+      setNewPassword(store.user.password)
       setNewFirstName(store.user.firstname)
       setNewLastName(store.user.lastname)
-      setNewBirthyear(store.user.birthyear)
-      setNewPhone(store.user.phone)
       setNewEmail(store.user.email)
+      setNewPhone(store.user.phone)
+      setNewBirthyear(store.user.birthyear)
+      setNewGender(store.user.gender)
+      setNewCity(store.user.city)
+      
+      console.log(store.user.birthyear)
+
     }
   }, [store.loggedIn])
 
@@ -85,52 +93,55 @@ function Profile() {
                   value={newUsername}
                   onChangeText={value => setNewUsername(value)}
                 />
-                <Text style={styles.text}>Användarnamn</Text>
+                <Text style={styles.text}>Lösenord</Text>
                 <TextInput
+                  secureTextEntry={true}
                   style={styles.input}
-                  value={newUsername}
-                  onChangeText={value => setNewUsername(value)}
+                  value={newPassword}
+                  onChangeText={value => setNewPassword(value)}
                 />
-                <Text style={styles.text}>Användarnamn</Text>
+                <Text style={styles.text}>Förnamn</Text>
                 <TextInput
                   style={styles.input}
-                  value={newUsername}
-                  onChangeText={value => setNewUsername(value)}
+                  value={newFirstName}
+                  onChangeText={value => setNewFirstName(value)}
                 />
-                <Text style={styles.text}>Användarnamn</Text>
+                <Text style={styles.text}>Efternamn</Text>
                 <TextInput
                   style={styles.input}
-                  value={newUsername}
-                  onChangeText={value => setNewUsername(value)}
+                  value={newLastName}
+                  onChangeText={value => setNewLastName(value)}
                 />
-                <Text style={styles.text}>Användarnamn</Text>
+                <Text style={styles.text}>Email</Text>
                 <TextInput
                   style={styles.input}
-                  value={newUsername}
-                  onChangeText={value => setNewUsername(value)}
+                  value={newEmail}
+                  onChangeText={value => setNewEmail(value)}
                 />
-                <Text style={styles.text}>Användarnamn</Text>
+                <Text style={styles.text}>Mobilnummer</Text>
                 <TextInput
+                keyboardType={"number-pad"}
                   style={styles.input}
-                  value={newUsername}
-                  onChangeText={value => setNewUsername(value)}
+                  value={newPhone}
+                  onChangeText={value => setNewPhone(value)}
                 />
-                <Text style={styles.text}>Användarnamn</Text>
+                <Text style={styles.text}>Födelseår</Text>
                 <TextInput
+                keyboardType={"number-pad"}
                   style={styles.input}
-                  value={newUsername}
-                  onChangeText={value => setNewUsername(value)}
+                  value={newBirthyear.toString()}
+                  onChangeText={value => setNewBirthyear(value)}
                 />
-                <Text style={styles.text}>Användarnamn</Text>
+                <Text style={styles.text}>Kön</Text>
                 <TextInput
                   style={styles.input}
-                  value={newUsername}
-                  onChangeText={value => setNewUsername(value)}
+                  value={newGender}
+                  onChangeText={value => setNewGender(value)}
                 />
-                <Text style={styles.text}>Användarnamn</Text>
+                <Text style={styles.text}>Stad</Text>
                 <TextInput
                   style={styles.input}
-                  value={newUsername}
+                  value={newCity}
                   onChangeText={value => setNewUsername(value)}
                 />
 
@@ -158,7 +169,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   scrollView: {
-    backgroundColor: 'pink',
+    // backgroundColor: 'pink',
     marginHorizontal: 20,
   },
   container: {
@@ -234,7 +245,7 @@ const styles = StyleSheet.create({
   modal: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: Dimensions.get('window').height - 50,
+    height: Dimensions.get('window').height - 200,
     width: Dimensions.get('window').width - 50,
     backgroundColor: '#abd9e7',
     // marginBottom: 30,
