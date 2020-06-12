@@ -21,6 +21,7 @@ function Login() {
   const [newPhone, setNewPhone] = useState()
   const [newEmail, setNewEmail] = useState()
 
+  const [loginError, setLoginError] = useState(false)
   const [error, setError] = useState(false)
 
   const login = () => {
@@ -40,7 +41,7 @@ function Login() {
         store.setAsLoggedIn()
       })
       .catch((error) => {
-        console.error('Error:', error);
+        setLoginError(true)
       });
 
   }
@@ -169,6 +170,7 @@ function Login() {
             <TouchableOpacity style={styles.btn} onPress={login}>
               <Text style={styles.btnText}>Logga in</Text>
             </TouchableOpacity>
+            {loginError && <Text style={styles.error}>Felaktigt användarnamn eller lösenord</Text>}
             <TouchableOpacity style={styles.register}>
               <Text style={styles.registerText} onPress={() => {
                 setModalVisible(true);
@@ -176,7 +178,7 @@ function Login() {
             </TouchableOpacity>
           </View>
             : <View style={styles.form}>
-              <Text style={styles.textCenter}>Inloggad som {store.inloggedUser.name}</Text>
+              <Text style={styles.textCenter}>Inloggad som {store.user.username}</Text>
               <TouchableOpacity style={styles.btn} onPress={logout}>
                 <Text style={styles.text}>Logga ut</Text>
               </TouchableOpacity>
@@ -295,6 +297,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#abd9e7',
     // marginBottom: 30,
     borderRadius: 15
+  },
+  error: {
+    color: 'red'
   }
 });
 

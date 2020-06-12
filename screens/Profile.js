@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { StyleSheet, Text, TextInput, View, Image, FlatList, Button, Dimensions, Modal, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import Context from '../Context/Context'
+import Localhost from '../components/Localhost'
 import Background from '../components/Background'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { MaterialIcons } from '@expo/vector-icons';
@@ -24,6 +25,8 @@ function Profile() {
   const [newGender, setNewGender] = useState()
   const [newCity, setNewCity] = useState()
 
+  const [error, setError] = useState(false)
+
   useEffect(() => {
     if (store.user) {
       setNewUsername(store.user.username)
@@ -40,6 +43,57 @@ function Profile() {
 
     }
   }, [store.loggedIn])
+
+  const updateProfile = () => {
+    setError(false)
+    fetch(`${Localhost}:3000/users`, {
+      method: "put",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: newUsername,
+        password: newPassword,
+        firstname: newFirstName,
+        lastname: newLastName,
+        email: newEmail,
+        phone: newPhone,
+        birthyear: newBirthyear,
+        gender: newGender,
+        city: newCity,
+        oldusername: store.user.username
+      })
+    })
+    .then(result => {
+      if (result.status === 200) {
+        setModalVisible(false)
+        
+        store.setUserData({
+          username: newUsername,
+          password: newPassword,
+          firstname: newFirstName,
+          lastname: newLastName,
+          email: newEmail,
+          phone: newPhone,
+          birthyear: newBirthyear,
+          gender: newGender,
+          city: newCity
+        })
+      }
+      else {
+        setError(true)
+
+      }
+    })
+    // .then(response => response.json())
+    // .then(data => {
+    //   store.setUserData(data[0])
+    //   store.setAsLoggedIn()
+    // })
+    // .catch((error) => {
+    //   console.error('Error:', error);
+    // });
+  }
 
   return useObserver(() => (
     <View style={styles.container}>
@@ -93,6 +147,7 @@ function Profile() {
                   value={newUsername}
                   onChangeText={value => setNewUsername(value)}
                 />
+                {error && <Text style={styles.error}>Användarnamnet är upptaget!</Text>}
                 <Text style={styles.text}>Lösenord</Text>
                 <TextInput
                   secureTextEntry={true}
@@ -129,7 +184,6 @@ function Profile() {
                 <TextInput
                 keyboardType={"number-pad"}
                   style={styles.input}
-                  value={newBirthyear.toString()}
                   onChangeText={value => setNewBirthyear(value)}
                 />
                 <Text style={styles.text}>Kön</Text>
@@ -142,7 +196,7 @@ function Profile() {
                 <TextInput
                   style={styles.input}
                   value={newCity}
-                  onChangeText={value => setNewUsername(value)}
+                  onChangeText={value => setNewCity(value)}
                 />
 
 
@@ -151,7 +205,7 @@ function Profile() {
             </SafeAreaView>
             <TouchableOpacity
               style={styles.regBtn}
-              onPress={() => console.log('new user')}>
+              onPress={() => updateProfile()}>
               <Text style={styles.btnText}>Uppdatera din profil</Text>
             </TouchableOpacity>
           </View>
@@ -293,6 +347,9 @@ const styles = StyleSheet.create({
     width: 250,
     borderRadius: 5
   },
+  error: {
+    color: 'red'
+  }
 
 });
 
