@@ -47,7 +47,7 @@ function Post() {
                 setErrorMsg('Permission to access location was denied');
             }
 
-            let location = await Location.getCurrentPositionAsync({});
+            let location = await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.High});
             setLocation(location);
         })();
 
@@ -214,6 +214,7 @@ function Post() {
                                             borderRadius: 5
                                         }
                                     }}
+                                    value={activity}
                                     placeholder={{ label: 'Välj aktivitet' }}
                                     onValueChange={(value) => setActivity(value)}
                                     items={[
@@ -250,6 +251,7 @@ function Post() {
                                             borderRadius: 5
                                         }
                                     }}
+                                    value={city}
                                     placeholder={{ label: 'Välj stad' }}
                                     onValueChange={(value) => setCity(value)}
                                     items={[
@@ -272,6 +274,7 @@ function Post() {
                                             borderRadius: 5
                                         }
                                     }}
+                                    value={duration}
                                     placeholder={{ label: 'Välj längd på eventet' }}
                                     onValueChange={(value) => setDuration(value)}
                                     items={[
@@ -286,7 +289,7 @@ function Post() {
                                 />
                                 <Text style={styles.text}>Max antal deltagare</Text>
                                 <TextInput
-                                    numeric
+                                    value={limit}
                                     keyboardType={"number-pad"}
                                     style={styles.input}
                                     onChangeText={value => setLimit(value)}

@@ -110,15 +110,15 @@ function Profile() {
           <Image source={{ uri: `https://randomuser.me/api/portraits/men/1.jpg` }} style={styles.img} />
           <Text style={styles.nameText}>{store.user.firstname}, {new Date().getFullYear() - store.user.birthyear}</Text>
 
-          <Text style={styles.text}>{store.user.gender}</Text>
-          <Text style={styles.text}>{store.user.city}</Text>
+          <Text style={styles.displayText}>{store.user.gender}</Text>
+          <Text style={styles.displayText}>{store.user.city}</Text>
           <View style={styles.infoBox}>
             <Ionicons name='ios-mail' size={30} />
-            <Text style={styles.text}>{store.user.email}</Text>
+            <Text style={styles.displayText}>{store.user.email}</Text>
           </View>
           <View style={styles.infoBox}>
             <Ionicons name='ios-phone-portrait' size={30} />
-            <Text style={styles.text}>{store.user.phone}</Text>
+            <Text style={styles.displayText}>{store.user.phone}</Text>
           </View>
         </View>
         : <Text>Inte inloggad</Text>}
@@ -320,6 +320,10 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
+  },
+  displayText: {
+    fontSize: 18,
+    margin: 10
   },
   regBtn: {
     backgroundColor: '#68bed8',
