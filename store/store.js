@@ -83,11 +83,8 @@ const store = observable({
 
 
     updateCheckbox(id) {
-        console.log('Ändrar checkbox värde')
         let objIndex = store.eventTypes.findIndex((obj => obj.id == id))
-        console.log('Innan ändring: ' + store.eventTypes[objIndex].checked)
         store.eventTypes[objIndex].checked = !store.eventTypes[objIndex].checked
-        console.log('Efter: ' + store.eventTypes[objIndex].checked)
     },
 
     // State 
