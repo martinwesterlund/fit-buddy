@@ -46,26 +46,26 @@ function Profile() {
 
   const updateProfile = () => {
     setError(false)
-    fetch(`${Localhost}:3000/users`, {
+    fetch(`${Localhost}:3000/updateProfile`, {
       method: "put",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        username: newUsername,
-        password: newPassword,
-        firstname: newFirstName,
-        lastname: newLastName,
+        // username: newUsername,
+        // password: newPassword,
+        // firstname: newFirstName,
+        // lastname: newLastName,
         email: newEmail,
         phone: newPhone,
-        birthyear: newBirthyear,
+        // birthyear: newBirthyear,
         gender: newGender,
         city: newCity,
-        oldusername: store.user.username
+        username: store.user.username
       })
     })
     .then(result => {
-      if (result.status === 200) {
+      if (result.status === 201) {
         setModalVisible(false)
         
         store.setUserData({

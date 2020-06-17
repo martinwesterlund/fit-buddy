@@ -25,7 +25,7 @@ function Login() {
   const [error, setError] = useState(false)
 
   const login = () => {
-    fetch(`${Localhost}:3000/login`, {
+    fetch(`${Localhost}:3000/loginmob`, {
       method: "post",
       headers: {
         "Content-Type": "application/json"
@@ -51,7 +51,7 @@ function Login() {
   const addNewUser = () => {
     setError(false)
 
-    fetch(`${Localhost}:3000/users`, {
+    fetch(`${Localhost}:3000/signUp`, {
       method: "post",
       headers: {
         "Content-Type": "application/json"
@@ -61,12 +61,11 @@ function Login() {
         password: newPassword,
         firstname: newFirstName,
         lastname: newLastName,
-        email: newEmail,
-        phone: newPhone,
+        email: null,
+        phone: null,
         birthyear: newBirthyear,
-        gender: 'Man',
-        city: 'Göteborg'
-
+        gender: null,
+        city: null
       })
     })
       .then(result => {
@@ -84,7 +83,7 @@ function Login() {
     store.setAsLoggedOut()
     store.setInloggedUser(null)
     store.setInloggedUserPW(null)
-    store.setUserData(null)
+    store.setUserData({ username: '' })
   }
 
   return useObserver(() => (
@@ -142,16 +141,6 @@ function Login() {
                     style={styles.input}
                     onChangeText={value => setNewBirthyear(value)}
                   />
-                  <Text style={styles.text}>Telefon</Text>
-                  <TextInput
-                    style={styles.input}
-                    onChangeText={value => setNewPhone(value)}
-                  />
-                  <Text style={styles.text}>Email</Text>
-                  <TextInput
-                    style={styles.input}
-                    onChangeText={value => setNewEmail(value)}
-                  />
                   <TouchableOpacity
                     style={styles.regBtn}
                     onPress={() => addNewUser()}>
@@ -164,7 +153,7 @@ function Login() {
           <Image source={require('./fitbuddy.png')} style={styles.img} />
           {!store.loggedIn ? <View style={styles.form}>
             <Text style={styles.text}>Användarnamn</Text>
-            <TextInput onChangeText={value => store.setInloggedUser(value)} value={store.inloggedUser.name} placeholder='exampel@exempel.com' style={styles.input}></TextInput>
+            <TextInput onChangeText={value => store.setInloggedUser(value)} value={store.inloggedUser.name} placeholder='användarnamn' style={styles.input}></TextInput>
             <Text style={styles.text}>Lösenord</Text>
             <TextInput onChangeText={value => store.setInloggedUserPW(value)} value={store.inloggedUser.password} placeholder='lösenord' secureTextEntry={true} style={styles.input}></TextInput>
             <TouchableOpacity style={styles.btn} onPress={login}>

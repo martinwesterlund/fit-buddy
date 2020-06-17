@@ -35,7 +35,7 @@ function Home() {
 
   const loadEventsFromDatabase = () => {
     console.log('Hämtar från db')
-    fetch(`${Localhost}:3000/events`)
+    fetch(`${Localhost}:3000/posts`)
       .then(response => response.json())
       .then(result => {
         store.setEvents(result)
@@ -53,7 +53,7 @@ function Home() {
         setErrorMsg('Permission to access location was denied');
       }
 
-      let location = await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.High});
+      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       setLocation(location);
     })();
 
@@ -63,14 +63,16 @@ function Home() {
     let att = JSON.parse(event.attendees)
     att.push({ "name": store.user.username })
     let att2 = JSON.stringify(att)
-    fetch(`${Localhost}:3000/events`, {
+    console.log(event.counter)
+    fetch(`${Localhost}:3000/attends`, {
       method: "put",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        id: event.id,
-        attendees: att2
+        counter: event.counter + 1,
+        attendees: att2,
+        postId: event.postId
       })
     }).then(result => {
       if (result.status === 200) {
@@ -87,14 +89,15 @@ function Home() {
   const cancelParticipation = (event) => {
     let att = JSON.parse(event.attendees)
     let att2 = JSON.stringify(att.filter(attendee => attendee.name != store.user.username))
-    fetch(`${Localhost}:3000/events`, {
+    fetch(`${Localhost}:3000/attends`, {
       method: "put",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        id: event.id,
-        attendees: att2
+        counter: event.counter - 1,
+        attendees: att2,
+        postId: event.postId
       })
     }).then(result => {
       if (result.status === 200) {
@@ -109,7 +112,7 @@ function Home() {
   }
 
 
-  const months = ['januari', 'februari', 'mars', 'april', 'maj', 'juni', 'juli', 'augusti', 'september', 'oktober', 'november', 'december']
+  const months = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
   const date = new Date()
   const today = `${date.getDate().toString()} ${months[date.getMonth()]}`
 
@@ -127,7 +130,7 @@ function Home() {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    fetch(`${Localhost}:3000/events`)
+    fetch(`${Localhost}:3000/posts`)
       .then(response => response.json())
       .then(result => {
         store.setEvents(result)
@@ -138,6 +141,7 @@ function Home() {
       .then(() => setRefreshing(false))
       .then(() => refData())
   }, [refreshing]);
+
 
 
   const showMap = () => {
@@ -162,6 +166,12 @@ function Home() {
 
       <View style={styles.screen}>
         <Background />
+        {store.filteredEvents.length === 0 &&
+          <View style={[styles.loadEventsContainer, styles.horizontal]}>
+            <Text style={styles.box, styles.text}>Laddar aktiviteter</Text>
+            <ActivityIndicator size="large" color="#68bed8" />
+          </View>
+        }
 
         {/* Visa lista med events */}
         {!mapVisible && store.filteredEvents ?
@@ -169,16 +179,16 @@ function Home() {
             data={store.filteredEvents}
             renderItem={({ item }) =>
 
-              <TouchableOpacity onPress={() => { showEvent(item.id) }}>
-                {store.filteredEventTypes.filter(type => type.type === item.event).length > 0 &&
+              <TouchableOpacity onPress={() => { showEvent(item.postId) }}>
+                {store.filteredEventTypes.filter(type => type.type === item.activity).length > 0 &&
                   <View style={styles.box}>
                     <View style={styles.date}>
-                      <Text style={styles.dateText}>{item.date}</Text>
+                      <Text style={styles.dateText}>{item.timestamp.substring(8, 10)} {months[Number(item.timestamp.substring(5, 7)) - 1]}</Text>
                     </View>
-                    <Text style={styles.eventTime}>{item.time}</Text>
-                    <Text style={styles.eventText}>{item.event}, {item.duration}</Text>
-                    <Text style={styles.text}>{item.location}</Text>
-                    <Text style={styles.text}>Skapad av: {item.hostName}</Text>
+                    <Text style={styles.eventTime}>{item.timestamp.substring(11, 16)}</Text>
+                    <Text style={styles.eventText}>{item.activity}, {item.duration} min</Text>
+                    <Text style={styles.text}>{item.city}</Text>
+                    <Text style={styles.text}>Skapad av: {item.creator}</Text>
                     <Text style={styles.text}>Bokade platser: {(JSON.parse(item.attendees)).length > 0 ? (JSON.parse(item.attendees)).length : 0}/{item.limit}</Text>
                     {(JSON.parse(item.attendees)).some(a => a.name === store.user.username) ?
                       <View style={styles.arrow}>
@@ -198,7 +208,7 @@ function Home() {
                 refreshing={refreshing}
                 onRefresh={onRefresh}
               />}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.postId}
           />
 
           // Eller kartan med events
@@ -218,12 +228,12 @@ function Home() {
 
                 >
                   {store.filteredEvents.map(event => (
-                    event.latitude && store.filteredEventTypes.filter(type => type.type === event.event).length > 0 && (
+                    event.latitude && store.filteredEventTypes.filter(type => type.type === event.activity).length > 0 && (
                       <Marker
                         coordinate={{ latitude: event.latitude, longitude: event.longitude }}
-                        title={`${event.event}, ${event.duration} `}
+                        title={`${event.activity}, ${event.duration} min`}
                         description={`${event.date}, kl. ${event.time}`}
-                        key={event.id} onPress={() => { store.setMarkedEvent(event.id) }}
+                        key={event.postId} onPress={() => { store.setMarkedEvent(event.postId) }}
                       />
                     )))
                   }
@@ -235,17 +245,17 @@ function Home() {
               </View>}
 
             {/* Visar valt event under kartan  */}
-            {store.markedEvent && ((store.cityFilter === undefined || store.cityFilter === null) || store.markedEvent.location === store.cityFilter) && store.filteredEventTypes.filter(type => type.type === store.markedEventInfo.event).length > 0 ?
+            {store.markedEvent && ((store.cityFilter === undefined || store.cityFilter === null) || store.markedEvent.city === store.cityFilter) && store.filteredEventTypes.filter(type => type.type === store.markedEventInfo.activity).length > 0 ?
               <>
                 <TouchableOpacity onPress={() => setEventModalVisible(true)}>
                   <View style={styles.box2}>
                     <View style={styles.date}>
-                      <Text style={styles.dateText}>{store.markedEventInfo.date}</Text>
+                      <Text style={styles.dateText}>{store.markedEventInfo.timestamp.substring(8, 10)} {months[Number(store.markedEventInfo.timestamp.substring(5, 7)) - 1]}</Text>
                     </View>
-                    <Text style={styles.eventTime}>{store.markedEventInfo.time}</Text>
-                    <Text style={styles.eventText}>{store.markedEventInfo.event}, {store.markedEventInfo.duration}</Text>
-                    <Text style={styles.text}>{store.markedEventInfo.location}</Text>
-                    <Text style={styles.text}>Skapad av: {store.markedEventInfo.hostName}</Text>
+                    <Text style={styles.eventTime}>{store.markedEventInfo.timestamp.substring(11, 16)}</Text>
+                    <Text style={styles.eventText}>{store.markedEventInfo.activity}, {store.markedEventInfo.duration} min</Text>
+                    <Text style={styles.text}>{store.markedEventInfo.city}</Text>
+                    <Text style={styles.text}>Skapad av: {store.markedEventInfo.creator}</Text>
                     <Text style={styles.text}>Bokade platser: {(JSON.parse(store.markedEventInfo.attendees)).length > 0 ? (JSON.parse(store.markedEventInfo.attendees)).length : 0}/{store.markedEventInfo.limit}</Text>
                     {(JSON.parse(store.markedEventInfo.attendees)).some(a => a.name === store.user.username) ?
                       <View style={styles.arrow}>
@@ -285,29 +295,31 @@ function Home() {
               <>
                 <ScrollView style={styles.infoBox}>
                   <View style={styles.infoBoxContent}>
-                    <Text style={styles.eventText}>{store.markedEventInfo.event} med {store.markedEventInfo.hostName} - {store.markedEventInfo.duration}</Text>
-                    <Text>{store.markedEventInfo.date}, kl. {store.markedEventInfo.time}</Text>
+                    <Text style={styles.eventText}>{store.markedEventInfo.activity} med {store.markedEventInfo.creator} - {store.markedEventInfo.duration} min</Text>
+                    <Text>{store.markedEventInfo.timestamp.substring(8, 10)} {months[Number(store.markedEventInfo.timestamp.substring(5, 7)) - 1]}, kl. {store.markedEventInfo.timestamp.substring(11, 16)}</Text>
 
-                    <Text>{store.markedEventInfo.location}</Text>
+                    <Text>{store.markedEventInfo.city}</Text>
                     <Text style={styles.description}>"{store.markedEventInfo.description}"</Text>
 
                   </View>
                 </ScrollView>
                 <Text style={styles.eventText}>Bokade platser {(JSON.parse(store.markedEventInfo.attendees)).length > 0 ? (JSON.parse(store.markedEventInfo.attendees)).length : 0}/{store.markedEventInfo.limit}</Text>
+                
                 {(JSON.parse(store.markedEventInfo.attendees)).some(a => a.name === store.user.username) ?
                   <TouchableOpacity
-                    disabled={(JSON.parse(store.markedEvent.attendees)).length >= store.markedEventInfo.limit && ((JSON.parse(store.markedEventInfo.attendees)).filter(a => a.name === store.user.username)).length === 0}
-                    style={(JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit && ((JSON.parse(store.markedEventInfo.attendees)).filter(a => a.name === store.user.username)).length === 0 ? styles.inactiveBtn : styles.unBookBtn}
+                    disabled={!store.loggedIn || ((JSON.parse(store.markedEvent.attendees)).length >= store.markedEventInfo.limit && ((JSON.parse(store.markedEventInfo.attendees)).filter(a => a.name === store.user.username)).length === 0)}
+                    style={!store.loggedIn || ((JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit && ((JSON.parse(store.markedEventInfo.attendees)).filter(a => a.name === store.user.username)).length === 0) ? styles.inactiveBtn : styles.unBookBtn}
                     onPress={() => cancelParticipation(store.markedEventInfo)}>
                     <Text style={styles.btnText}>Avboka din plats</Text>
                   </TouchableOpacity>
                   :
                   <TouchableOpacity
-                    disabled={(JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit || store.markedEventInfo.hostName === store.user.username}
-                    style={(JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit || store.markedEventInfo.hostName === store.user.username ? styles.inactiveBtn : styles.regBtn}
+                    disabled={!store.loggedIn || ((JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit || store.markedEventInfo.hostName === store.user.username)}
+                    style={!store.loggedIn || ((JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit || store.markedEventInfo.hostName === store.user.username) ? styles.inactiveBtn : styles.regBtn}
                     onPress={() => attendToEvent(store.markedEventInfo)}>
                     <Text style={styles.btnText}>Boka en plats</Text>
                   </TouchableOpacity>}
+                  
 
               </>)}
           </View>
@@ -614,7 +626,7 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     justifyContent: 'center',
-    
+
   },
   horizontal: {
     flexDirection: 'column',
@@ -622,5 +634,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
   },
+  loadEventsContainer: {
+    width: Dimensions.get('window').width
+  }
 });
 export default Home

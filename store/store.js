@@ -13,11 +13,11 @@ const store = observable({
 
     get filteredEvents() {
         if (store.cityFilter) {
-            return store.events.filter(event => event.location === store.cityFilter).slice().sort((a, b) => (a.completeDate > b.completeDate) ? 1 : -1)
+            return store.events.filter(event => event.location === store.cityFilter).slice().sort((a, b) => (a.timestamp > b.timestamp) ? 1 : -1)
         }
         else {
             
-            return store.events.slice().sort((a, b) => (a.completeDate > b.completeDate) ? 1 : -1)
+            return store.events.slice().sort((a, b) => (a.timestamp > b.timestamp) ? 1 : -1)
         }
 
     },
@@ -28,7 +28,7 @@ const store = observable({
 
     get markedEventInfo() {
 
-        return store.events.filter(event => event.id == store.markedEvent.id)[0]
+        return store.events.filter(event => event.postId == store.markedEvent.postId)[0]
     },
 
     // get markedEventData(){
@@ -65,7 +65,7 @@ const store = observable({
     },
 
     setMarkedEvent(id) {
-        store.markedEvent = store.events.filter(event => event.id == id)[0]
+        store.markedEvent = store.events.filter(event => event.postId == id)[0]
     },
 
     setUserData(user) {
@@ -103,13 +103,15 @@ const store = observable({
     // user: null,
     user: { username: '' },
     eventTypes: [
-        { id: '1', type: 'Löpning', checked: true },
-        { id: '2', type: 'Promenad', checked: true },
-        { id: '3', type: 'Padel', checked: true },
-        { id: '4', type: 'Fotboll', checked: true },
-        { id: '5', type: 'Simning', checked: true },
-        { id: '6', type: 'Frisbeegolf', checked: true },
-        { id: '7', type: 'Övrigt', checked: true }
+        { id: '1', type: 'Bandy', checked: true },
+        { id: '2', type: 'Cykling', checked: true },
+        { id: '3', type: 'Fotboll', checked: true },
+        { id: '4', type: 'Gym', checked: true },
+        { id: '5', type: 'Klättring', checked: true },
+        { id: '6', type: 'Löpning', checked: true },
+        { id: '7', type: 'Simning', checked: true },
+        { id: '8', type: 'Tennis', checked: true },
+        { id: '9', type: 'Övrigt', checked: true },
 
     ],
     events: [],

@@ -47,7 +47,7 @@ function Post() {
                 setErrorMsg('Permission to access location was denied');
             }
 
-            let location = await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.High});
+            let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
             setLocation(location);
         })();
 
@@ -57,30 +57,28 @@ function Post() {
 
     const createEvent = () => {
         console.log(date)
-        fetch(`${Localhost}:3000/events`, {
+        fetch(`${Localhost}:3000/createpostmob`, {
             method: "post",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                event: activity,
-                date: dateStringSmall,
-                completeDate: date,
-                created: new Date(),
-                duration: duration,
+                title: activity,
                 description: description,
-                location: city,
-                time: timeString,
-                attendees: '[]',
+                city: city,
+                timestamp: date,
+                duration: duration,
+                activity: activity,
+                attendees: [],
                 limit: limit,
-                hostId: null,
-                hostName: store.user.username,
+                counter: 0,
+                creator: store.user.username,
                 longitude: newMarker.longitude,
                 latitude: newMarker.latitude
             })
         })
             .then(result => {
-                if (result.status === 201) {
+                if (result.status === 200) {
                     console.log('Eventet skapat')
                     clearFields()
                 }
@@ -218,13 +216,16 @@ function Post() {
                                     placeholder={{ label: 'Välj aktivitet' }}
                                     onValueChange={(value) => setActivity(value)}
                                     items={[
-                                        { label: 'Löpning', value: 'Löpning' },
-                                        { label: 'Promenad', value: 'Promenad' },
-                                        { label: 'Padel', value: 'Padel' },
+                                        { label: 'Bandy', value: 'Bandy' },
+                                        { label: 'Cykling', value: 'Cykling' },
                                         { label: 'Fotboll', value: 'Fotboll' },
+                                        { label: 'Gym', value: 'Gym' },
+                                        { label: 'Klättring', value: 'Klättring' },
+                                        { label: 'Löpning', value: 'Löpning' },
                                         { label: 'Simning', value: 'Simning' },
-                                        { label: 'Frisbeegolf', value: 'Frisbeegolf' },
+                                        { label: 'Tennis', value: 'Tennis' },
                                         { label: 'Övrigt', value: 'Övrigt' }
+
                                     ]}
                                 />
                                 <Text style={styles.text}>Beskrivning</Text>
@@ -278,13 +279,13 @@ function Post() {
                                     placeholder={{ label: 'Välj längd på eventet' }}
                                     onValueChange={(value) => setDuration(value)}
                                     items={[
-                                        { label: '30 min', value: '30 min' },
-                                        { label: '45 min', value: '45 min' },
-                                        { label: '60 min', value: '60 min' },
-                                        { label: '75 min', value: '75 min' },
-                                        { label: '90 min', value: '90 min' },
-                                        { label: '120 min', value: '120 min' },
-                                        { label: '180 min', value: '180 min' }
+                                        { label: '30 min', value: '30' },
+                                        { label: '45 min', value: '45' },
+                                        { label: '60 min', value: '60' },
+                                        { label: '75 min', value: '75' },
+                                        { label: '90 min', value: '90' },
+                                        { label: '120 min', value: '120' },
+                                        { label: '180 min', value: '180' }
                                     ]}
                                 />
                                 <Text style={styles.text}>Max antal deltagare</Text>
@@ -436,7 +437,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 5,
         opacity: 0.3
-      },
+    },
     registerText: {
         fontSize: 16,
         textAlign: 'center'
