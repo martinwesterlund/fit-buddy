@@ -2,24 +2,18 @@ import { observable, reaction } from 'mobx'
 import 'mobx-react-lite/batchingForReactDom'
 
 const store = observable({
-    // Derivation - getters/computed
+    // Derivation
     get numberOfIncrements() {
         return store.value - 1
     },
-
-    // get eventTypesData(){
-    //     return store.eventTypes
-    // },
 
     get filteredEvents() {
         if (store.cityFilter) {
             return store.events.filter(event => event.location === store.cityFilter).slice().sort((a, b) => (a.timestamp > b.timestamp) ? 1 : -1)
         }
-        else {
-            
+        else {      
             return store.events.slice().sort((a, b) => (a.timestamp > b.timestamp) ? 1 : -1)
         }
-
     },
 
     get filteredEventTypes(){
@@ -27,19 +21,10 @@ const store = observable({
     },
 
     get markedEventInfo() {
-
         return store.events.filter(event => event.postId == store.markedEvent.postId)[0]
     },
 
-    // get markedEventData(){
-    //     return store.events.filter(event => event.id == store.markedEvent.id)
-    // },
-
-    // get markedEvent(){
-    //     return store.events.filter(event => event.id == store.markedEventId)
-    // },
-
-    // Action - ändra värde i store (mutation)
+    // Actions
     increment() {
         store.value++
     },
@@ -80,8 +65,6 @@ const store = observable({
         store.loggedIn = false
     },
 
-
-
     updateCheckbox(id) {
         let objIndex = store.eventTypes.findIndex((obj => obj.id == id))
         store.eventTypes[objIndex].checked = !store.eventTypes[objIndex].checked
@@ -97,7 +80,6 @@ const store = observable({
     loggedIn: false,
     markedEventId: null,
     markedEvent: null,
-    // user: null,
     user: { username: '' },
     eventTypes: [
         { id: '1', type: 'Bandy', checked: true },
@@ -112,20 +94,6 @@ const store = observable({
 
     ],
     events: [],
-
-
 })
-
-// Reaction - Uppgifter som utgörs (till exempel fetch) när vissa saker händer. Motsvarar watch i Vuex (och i Vue.js).
-reaction(
-    // Vilket värde är vi intresserade av?
-    () => {
-        return store.value
-    },
-    // Vad ska vi göra när det ändras?
-    () => {
-        console.log('Kör varje gång value ändras')
-    }
-)
 
 export default store

@@ -4,7 +4,6 @@ import Background from '../components/Background'
 import Localhost from '../components/Localhost'
 import Context from '../Context/Context'
 import { useObserver } from 'mobx-react-lite'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import { FontAwesome } from '@expo/vector-icons'
 
 

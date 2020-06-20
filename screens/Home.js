@@ -13,17 +13,17 @@ import MapView, { Marker } from 'react-native-maps'
 import Localhost from '../components/Localhost';
 import { ScrollView } from 'react-native-gesture-handler';
 
-
-
-
 function Home() {
   const store = useContext(Context)
 
   const [location, setLocation] = useState()
-  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [filterModalVisible, setFilterModalVisible] = useState(false)
   const [eventModalVisible, setEventModalVisible] = useState(false)
-
-
+  const [mapVisible, setMapVisible] = useState(false)
+  const [refreshing, setRefreshing] = useState(false);
+  const months = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
+  const date = new Date()
+  const today = `${date.getDate().toString()} ${months[date.getMonth()]}`
 
   useEffect(() => {
     getLocationAsync()
@@ -32,32 +32,6 @@ function Home() {
   useEffect(() => {
     loadEventsFromDatabase()
   }, [])
-
-  const loadEventsFromDatabase = () => {
-    console.log('Hämtar från db')
-    fetch(`${Localhost}:3000/posts`)
-      .then(response => response.json())
-      .then(result => {
-        store.setEvents(result)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  }
-
-
-  getLocationAsync = async () => {
-    (async () => {
-      let { status } = await Location.requestPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-      }
-
-      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-      setLocation(location);
-    })();
-
-  };
 
   const attendToEvent = (event) => {
     let att = JSON.parse(event.attendees)
@@ -111,22 +85,28 @@ function Home() {
     })
   }
 
+  const getLocationAsync = async () => {
+    (async () => {
+      let { status } = await Location.requestPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+      }
+      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      setLocation(location);
+    })();
+  };
 
-  const months = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
-  const date = new Date()
-  const today = `${date.getDate().toString()} ${months[date.getMonth()]}`
-
-  const [mapVisible, setMapVisible] = useState(false)
-  const showEvent = id => {
-    store.setMarkedEvent(id)
-    setEventModalVisible(true)
+  const loadEventsFromDatabase = () => {
+    console.log('Hämtar från db')
+    fetch(`${Localhost}:3000/posts`)
+      .then(response => response.json())
+      .then(result => {
+        store.setEvents(result)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   }
-
-  const refData = () => {
-    console.log('listan uppdaterad')
-  }
-
-  const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -139,15 +119,16 @@ function Home() {
         console.log(error)
       })
       .then(() => setRefreshing(false))
-      .then(() => refData())
   }, [refreshing]);
 
-
-
+  const showEvent = id => {
+    store.setMarkedEvent(id)
+    setEventModalVisible(true)
+  }
+  
   const showMap = () => {
     setMapVisible(!mapVisible)
   }
-
 
   return useObserver(() => (
     <>
@@ -300,11 +281,11 @@ function Home() {
 
                     <Text>{store.markedEventInfo.city}</Text>
                     <Text style={styles.description}>"{store.markedEventInfo.description}"</Text>
-
+            <Text>creator: {store.markedEventInfo.creator}</Text>
                   </View>
                 </ScrollView>
                 <Text style={styles.eventText}>Bokade platser {(JSON.parse(store.markedEventInfo.attendees)).length > 0 ? (JSON.parse(store.markedEventInfo.attendees)).length : 0}/{store.markedEventInfo.limit}</Text>
-                
+
                 {(JSON.parse(store.markedEventInfo.attendees)).some(a => a.name === store.user.username) ?
                   <TouchableOpacity
                     disabled={!store.loggedIn || ((JSON.parse(store.markedEvent.attendees)).length >= store.markedEventInfo.limit && ((JSON.parse(store.markedEventInfo.attendees)).filter(a => a.name === store.user.username)).length === 0)}
@@ -314,13 +295,11 @@ function Home() {
                   </TouchableOpacity>
                   :
                   <TouchableOpacity
-                    disabled={!store.loggedIn || ((JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit || store.markedEventInfo.hostName === store.user.username)}
-                    style={!store.loggedIn || ((JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit || store.markedEventInfo.hostName === store.user.username) ? styles.inactiveBtn : styles.regBtn}
+                    disabled={!store.loggedIn || ((JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit || store.markedEventInfo.creator === store.user.username)}
+                    style={!store.loggedIn || ((JSON.parse(store.markedEventInfo.attendees)).length >= store.markedEventInfo.limit || store.markedEventInfo.creator === store.user.username) ? styles.inactiveBtn : styles.regBtn}
                     onPress={() => attendToEvent(store.markedEventInfo)}>
                     <Text style={styles.btnText}>Boka en plats</Text>
                   </TouchableOpacity>}
-                  
-
               </>)}
           </View>
         </View>
@@ -638,4 +617,5 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width
   }
 });
+
 export default Home
